@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
+    private boolean sick;
     private String username;
     private String password;
+    //private String address;
     private int localizacao;
     private List<String> riskContact;
 
@@ -17,6 +19,7 @@ public class User {
     }
 
     public User(String username, String password, int localizacao, List<String> riskContact) {
+        this.sick = false;
         this.username = username;
         this.password = password;
         this.localizacao = localizacao;
@@ -24,12 +27,17 @@ public class User {
     }
 
     public User(User u) {
+        this.sick = u.isSick();
         this.username = u.getUsername();
         this.password = u.getPassword();
         this.localizacao = u.getLocalizacao();
         this.riskContact = u.getRiskContact();
 
     }
+
+    private boolean isSick(){ return sick;}
+
+    private void isSick(boolean sick){ this.sick = sick;}
 
     public String getUsername() {
         return this.username;
