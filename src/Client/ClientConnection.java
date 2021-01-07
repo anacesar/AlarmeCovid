@@ -30,6 +30,5 @@ public class ClientConnection implements AutoCloseable{
     }
 
 
-
     /*metodos para enviar resultados para o servidor */
 }
