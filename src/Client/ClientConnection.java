@@ -14,9 +14,11 @@ public class ClientConnection implements AutoCloseable{
     public class Message{
         int type;
         byte[] data;
+
+        /* serialize and deserialize methods */
+
+
     }
-
-
 
     public ClientConnection(Socket socket) throws IOException {
         this.socket = socket;
@@ -31,4 +33,10 @@ public class ClientConnection implements AutoCloseable{
 
 
     /*metodos para enviar resultados para o servidor */
+
+    /* send and receive */
+
+
+
+
 }

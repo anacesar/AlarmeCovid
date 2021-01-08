@@ -1,7 +1,7 @@
 package Client;
 
-import java.io.DataOutput;
-import java.io.DataOutputStream;
+import Client.ClientConnection.Message;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.Condition;
@@ -25,6 +25,52 @@ public class Demultiplexer {
 
     }
 
+    Runnable interaction = () -> {
+        try {
+            Message m = conn.receive();
+            /* check messages tag */
+
+            switch(m.type){
+                case 1: //risk contact notification
+                    break;
+                case 2: //location empty notification
+                    break;
+                default:
+                    break;
+            }
+            lock.lock();
+            try{
+                FlagFrame ff = get(frame.tag);
+                ff.queue.add(frame.data);
+                ff.c.signal();
+            }finally {
+                lock.unlock();
+            }
+
+        } catch(IOException e) {
+            lock.lock(); //e uma variavel partilhada
+            try{
+                exception = e;
+                flagMap.forEach((k, ff) -> ff.c.signalAll());
+            }finally {
+                lock.unlock();
+            }
+        }
+    };
+
+    Runnable notifier = () -> {
+        lock.lock();
+        try {
+            while(flagMap.isEmpty()) wait_notifications.await();
+            /* do stuff with notifications */
+
+        } catch(InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
+    };
+
 
     public void start() {
         Runnable notifier = () -> {
@@ -43,5 +89,13 @@ public class Demultiplexer {
 
 
     //demultiplexer verifica tipo de mensagens recebida pelo servidor
+
+    /* send different types of messages from user */
+
+    out.write("login username password")
+
+    public void send(){
+        conn.send();
+    }
 
 }

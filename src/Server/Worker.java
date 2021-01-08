@@ -11,10 +11,10 @@ public class Worker {
     private ClientConnection client;
     private String username;
     private boolean log;
-    private MinHeap tasks;
-
 
     public Worker(ClientConnection cc, Data data){
 
     }
+
+
 }

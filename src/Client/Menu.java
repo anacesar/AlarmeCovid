@@ -1,24 +1,19 @@
 package Client;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class Menu{
-    private ClientConnection clientConnection;
+    private Demultiplexer demultiplexer;
     private String user;
     private BufferedReader bufferedReader;
 
-    public Menu(ClientConnection cc) {
-        this.clientConnection = cc;
+    public Menu(Demultiplexer demultiplexer) {
+        this.demultiplexer = demultiplexer;
         this.user = null;
         this.bufferedReader = new BufferedReader(new InputStreamReader(System.in));
     }
 
-    public void firstMenu() throws IOException {
+    public int firstMenu() throws IOException {
         int option = -1;
         while(option != 3) {
             System.out.println("|----------------|------------------------------|");
@@ -46,6 +41,7 @@ public class Menu{
                 String password = this.bufferedReader.readLine();
                 if(option == 1) {
                     try {
+                        demultiplexer.send();
                         this.stub.authentication(username, password);
                         this.username = username;
                         Utility.clearScreen();
