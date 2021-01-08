@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Demultiplexer {
     private ClientConnection conn;
-    private Map<Integer, Notification> flagMap = new HashMap<>(); //Integer (type of notification)-> messages
+    private Map<Integer, Notification> notifications = new HashMap<>(); //Integer (type of notification)-> messages
     private Lock lock = new ReentrantLock();
     private Condition wait_notifications = lock.newCondition();
     private IOException exception = null;
@@ -18,6 +18,11 @@ public class Demultiplexer {
     public class Notification{
         int type; /* 1-> location empty     2-> risk contact */
         Queue<byte []> queue = new ArrayDeque<>();
+
+        public void getQueue() {
+
+        }
+
     }
 
     public Demultiplexer(ClientConnection conn){
@@ -25,11 +30,16 @@ public class Demultiplexer {
 
     }
 
+
+    // interaction with the server
     Runnable interaction = () -> {
         try {
-            Message m = conn.receive();
+
+            // notificacao quando o servidor tem uma notif p mandar p cliente
+            byte[] data = this.conn.receive();
             /* check messages tag */
 
+            /*
             switch(m.type){
                 case 1: //risk contact notification
                     break;
@@ -40,28 +50,29 @@ public class Demultiplexer {
             }
             lock.lock();
             try{
-                FlagFrame ff = get(frame.tag);
-                ff.queue.add(frame.data);
+                Message me = get(frame.tag);
+                me.queue.add(frame.data);
                 ff.c.signal();
             }finally {
                 lock.unlock();
             }
-
-        } catch(IOException e) {
+*/
+        }catch(IOException e) {
             lock.lock(); //e uma variavel partilhada
             try{
                 exception = e;
-                flagMap.forEach((k, ff) -> ff.c.signalAll());
+                //notifications.forEach((k, ff) -> ff..signalAll());
             }finally {
                 lock.unlock();
             }
         }
     };
 
+    //wait for notification signal
     Runnable notifier = () -> {
         lock.lock();
         try {
-            while(flagMap.isEmpty()) wait_notifications.await();
+            while(notifications.isEmpty()) wait_notifications.await();
             /* do stuff with notifications */
 
         } catch(InterruptedException e) {
@@ -76,7 +87,7 @@ public class Demultiplexer {
         Runnable notifier = () -> {
             lock.lock();
             try {
-                while(flagMap.isEmpty()) wait_notifications.await();
+                while(notifications.isEmpty()) wait_notifications.await();
 
             } catch(InterruptedException e) {
                 e.printStackTrace();
@@ -92,10 +103,38 @@ public class Demultiplexer {
 
     /* send different types of messages from user */
 
-    out.write("login username password")
+    //out.write("login username password");
 
-    public void send(){
-        conn.send();
+
+    /*
+    public void send(Message message) throws IOException {
+        this.conn.send(message);
+    }
+
+     */
+
+
+    /* login and register */
+    public void send(String op, String username, String password) throws IOException {
+        String line = op + " " + username + " " + " " + password;
+        this.conn.send(line.getBytes());
+
+    }
+
+    /* send of location */
+    public void send(String op, int nodo) throws IOException{
+        String line = op + " " + nodo;
+        this.conn.send(line.getBytes());
+    }
+
+
+    public byte[] receive() throws IOException, InterruptedException {
+        return this.conn.receive();
+    }
+
+
+    public void close() throws IOException {
+        this.conn.close();
     }
 
 }

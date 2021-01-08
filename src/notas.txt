@@ -17,5 +17,6 @@ esta logado ?? envias notifi pelo clientConn
 se nao guardas no data notifi associadas ao user
 
 --servidor faz um login--
+se esta doente
 verifica se ut tem notificacoes para receber ? se tem, manda pelo conn
 se nao continua

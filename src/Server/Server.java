@@ -22,15 +22,18 @@ public class Server {
         while(!shutdown) {
             Socket clientSocket = serverSocket.accept();
             ClientConnection c = new ClientConnection(clientSocket);
+
+            new Thread(new Worker(c,data)).start();
             
         }
+    }
 
         public static void shutdown(){
-            shutdown = true;
+            boolean shutdown = true;
             System.out.println("Shutting down the server...");
             System.out.println("Shutting down thread pool...");
             //threadPool.shutdownPool();
-            soundCloud.warnClientsAboutShutdown();
+            //soundCloud.warnClientsAboutShutdown();
             System.out.println("ThreadPool ok");
             System.out.println("Closing server socket...");
             try{

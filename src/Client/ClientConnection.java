@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ClientConnection implements AutoCloseable{
+public class ClientConnection implements AutoCloseable {
     private Socket socket;        /** Socket do cliente **/
     private DataOutputStream out; /** Extremidade de escrita **/
     private DataInputStream in;   /** Extremidade de leitura **/
@@ -12,12 +12,14 @@ public class ClientConnection implements AutoCloseable{
     private ReentrantLock rlock = new ReentrantLock();
 
     public class Message{
-        int type;
+        String type;
         byte[] data;
 
+        public Message(byte[] data){
+            data = data;
+        }
+
         /* serialize and deserialize methods */
-
-
     }
 
     public ClientConnection(Socket socket) throws IOException {
@@ -26,17 +28,39 @@ public class ClientConnection implements AutoCloseable{
         this.in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
     }
 
-    @Override
-    public void close() throws Exception {
-
-    }
-
 
     /*metodos para enviar resultados para o servidor */
 
     /* send and receive */
 
+    public void send(byte[] data) throws IOException {
+        try {
+            wlock.lock();
+            out.writeInt(data.length);
+            out.write(data);
+            out.flush();
+        } finally {
+            wlock.unlock();
+        }
+    }
+    public byte[] receive() throws IOException {
+        byte[] data;
+        try {
+            rlock.lock();
+            data = new byte[in.readInt()];
+            in.readFully(data);
+        }
+        finally {
+            rlock.unlock();
+        }
+        return data;
+    }
 
+    public void close() throws IOException {
+        socket.shutdownInput();
+        socket.shutdownOutput();
+        socket.close();
+    }
 
 
 }
