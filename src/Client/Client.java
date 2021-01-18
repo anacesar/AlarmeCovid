@@ -13,11 +13,11 @@ public class Client {
         BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
 
         /* Create ClientConnection */
-        //ClientConnection clientConnection = new ClientConnection(socket);
+        ClientConnection clientConnection = new ClientConnection(socket);
 
         /* Create Demultiplexer */
-        Demultiplexer demultiplexer = new Demultiplexer(new ClientConnection(socket));
-        demultiplexer.start(); //o cliente vai estar pronto para comunicar com sev e esperar por not
+        Demultiplexer demultiplexer = new Demultiplexer(clientConnection);
+        //demultiplexer.start(); //o cliente vai estar pronto para comunicar com sev e esperar por not
 
         /* Launch the first menu */
         Menu menu = new Menu(demultiplexer);

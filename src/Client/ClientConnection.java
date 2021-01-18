@@ -43,6 +43,19 @@ public class ClientConnection implements AutoCloseable {
             wlock.unlock();
         }
     }
+
+    public void send(String data) throws IOException {
+        try {
+            wlock.lock();
+            byte[] dataB = data.getBytes();
+            out.writeInt(dataB.length);
+            out.write(dataB);
+            out.flush();
+        } finally {
+            wlock.unlock();
+        }
+    }
+
     public byte[] receive() throws IOException {
         byte[] data;
         try {

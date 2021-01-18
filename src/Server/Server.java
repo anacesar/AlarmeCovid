@@ -21,10 +21,9 @@ public class Server {
 
         while(!shutdown) {
             Socket clientSocket = serverSocket.accept();
-            ClientConnection c = new ClientConnection(clientSocket);
+            ClientConnection clientConnection = new ClientConnection(clientSocket);
 
-            new Thread(new Worker(c,data)).start();
-            
+            new Thread(new Worker(data,clientConnection)).start();
         }
     }
 

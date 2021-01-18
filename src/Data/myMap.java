@@ -1,5 +1,7 @@
 package Data;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -11,6 +13,10 @@ public class myMap {
     private Location[][] map;
 
     private Lock lock = new ReentrantLock();
+
+    public myMap() {
+
+    }
 
     class Location {
         private List<String> currentUsers; //list of current users in this location
@@ -37,7 +43,13 @@ public class myMap {
             }finally {
                 lock.unlock();
             }
+
         }
+
+        public List<String> getCurrentUsers(){
+            return currentUsers;
+        }
+
 
         public void waitEmpty(String username) throws InterruptedException {
             lock.lock();
@@ -52,12 +64,8 @@ public class myMap {
     }
 
     public Location getLocation(int node){
-        lock.lock();
-        try{
-            return map[node/N][node%N];
-        }finally {
-            lock.unlock();
-        }
+        //nao esta certo -- falta dar lock a location antes do unlock
+        return map[node/N][node%N];
     }
 
     public int getNode(Location location) {

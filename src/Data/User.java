@@ -2,28 +2,37 @@ package Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class User {
-    private boolean sick;
+    private boolean special_user;
+    private boolean sick; //ou LocalDateTime sick ??? null quando nao esta doente
     private String username;
     private String password;
     //private String address;
     private int localizacao;
     private List<String> riskContact;
+    private ReentrantLock lockUser;
+    private Condition hasNotifications;
+    private List<String> notifications;
 
     public User(){
+        this.special_user = false;
         this.username = "";
         this.password = "";
         this.localizacao = 0;
         this.riskContact = new ArrayList<>();
+        this.lock = new ReentrantLock();
     }
 
-    public User(String username, String password, int localizacao, List<String> riskContact) {
+    public User(String username, String password, Boolean special) {
+        this.special_user = special;
         this.sick = false;
         this.username = username;
         this.password = password;
-        this.localizacao = localizacao;
-        this.riskContact = riskContact;
+        this.localizacao = 0; /* default location for new user */
+        this.riskContact = new ArrayList<>();
     }
 
     public User(User u) {
@@ -35,9 +44,14 @@ public class User {
 
     }
 
-    private boolean isSick(){ return sick;}
 
-    private void isSick(boolean sick){ this.sick = sick;}
+    public boolean isSpecial_user(){ return special_user;}
+
+    public void isSpecial_user(boolean special_user){ this.special_user = special_user;}
+
+    public boolean isSick(){ return sick;}
+
+    public void isSick(boolean sick){ this.sick = sick;}
 
     public String getUsername() {
         return this.username;
@@ -67,8 +81,22 @@ public class User {
         return this.riskContact;
     }
 
+    public void addRiskContact(List<String> contacts){
+        contacts.forEach(contact -> {
+            if(!this.riskContact.contains(contact)) riskContact.add(contact);
+        });
+    }
+
     public void setRiskContact(List<String> riskContact){
         this.riskContact = riskContact;
+    }
+
+    public void lock(){
+        this.lock.lock();
+    }
+
+    public void unlock(){
+        this.lock.unlock();
     }
 
 }

@@ -1,6 +1,11 @@
 package Client;
 
 import Client.ClientConnection.Message;
+import Data.AlarmCovidInterface;
+import exceptions.AlreadyRegistedException;
+import exceptions.InvalidLocationException;
+import exceptions.InvalidLoginException;
+import exceptions.SpecialPasswordInvalidException;
 
 import java.io.IOException;
 import java.util.*;
@@ -8,7 +13,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Demultiplexer {
+public class Demultiplexer implements AlarmCovidInterface {
     private ClientConnection conn;
     private Map<Integer, Notification> notifications = new HashMap<>(); //Integer (type of notification)-> messages
     private Lock lock = new ReentrantLock();
@@ -132,6 +137,61 @@ public class Demultiplexer {
         return this.conn.receive();
     }
 
+    @Override
+    public void registration(String username, String password, String special_password) throws AlreadyRegistedException, SpecialPasswordInvalidException {
+        String line = "register;" + username + ";" + password + ";" + special_password;
+        try {
+            this.conn.send(line.getBytes());
+
+            line = new String(this.conn.receive());
+            System.out.println(line);
+            String[] answers = line.split(";");
+            //check da exception
+            if(answers[0].equals("e")) throw new AlreadyRegistedException(answers[1]);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void authentication(String username, String password) throws InvalidLoginException {
+        String line = "login;" + username + ";" + password;
+        try {
+            this.conn.send(line.getBytes());
+
+            line = new String(this.conn.receive());
+            System.out.println(line);
+            String[] answers = line.split(";");
+            if(answers[0].equals("e")) throw new InvalidLoginException(answers[1]);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void notify_positive(String username) {
+
+    }
+
+    @Override
+    public int nr_people_location(int node) throws InvalidLocationException {
+        return 0;
+    }
+
+    @Override
+    public void notify_empty_location(String username, int node) throws InvalidLocationException {
+
+    }
+
+    @Override
+    public void update_location(String username, int new_location) {
+
+    }
+
+    @Override
+    public void download_map() {
+
+    }
 
     public void close() throws IOException {
         this.conn.close();

@@ -1,5 +1,9 @@
 package Client;
 
+import exceptions.AlreadyRegistedException;
+import exceptions.InvalidLoginException;
+import exceptions.SpecialPasswordInvalidException;
+
 import java.io.*;
 
 public class Menu {
@@ -24,9 +28,10 @@ public class Menu {
             System.out.println("|                                               |");
             System.out.println("|     [ 1 ] - Autenticação                      |");
             System.out.println("|     [ 2 ] - Registo                           |");
+            System.out.println("|-----------------------------------------------|");
             System.out.println("$ Opção : ");
             try {
-                option = Integer.valueOf(this.bufferedReader.readLine());
+                option = Integer.parseInt(this.bufferedReader.readLine());
             } catch (NumberFormatException n) {
                 //Utility.clearScreen();
                 System.out.println("Formato inválido!");
@@ -40,17 +45,17 @@ public class Menu {
                 String password = this.bufferedReader.readLine();
                 if(option == 1){
                     try{
-                        demultiplexer.send("login" , username, password);
+                        demultiplexer.authentication(username, password);
                         this.user = username;
-                        System.out.println(new String(this.demultiplexer.receive()));
-                    }catch(IOException | InterruptedException e){
-                        e.printStackTrace();
+                    }catch(InvalidLoginException e){
+                        System.out.println(e.getMessage());
                     }
                 }else{
+
                     try{
-                        demultiplexer.send("register" , username, password);
-                    }catch(IOException e){
-                        e.printStackTrace();
+                        demultiplexer.registration(username, password, "null");
+                    }catch(AlreadyRegistedException | SpecialPasswordInvalidException e){
+                        System.out.println(e.getMessage());
                     }
                 }
             }

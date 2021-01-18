@@ -1,0 +1,22 @@
+cliente conecta se --> cria demultiplexer
+
+Demultiplexer:
+thread responsavel verificar as notificacoes
+thread responsavel pela interacao com util {
+--> mostrar menus e enviar respostas ao util
+--> enviar e receber do servidor
+}
+
+server:
+manda pelo clientconnection a info
+
+conexao demultiplexer --> menu
+
+--servidor precisa notificar cliente--
+esta logado ?? envias notifi pelo clientConn
+se nao guardas no data notifi associadas ao user
+
+--servidor faz um login--
+se esta doente
+verifica se ut tem notificacoes para receber ? se tem, manda pelo conn
+se nao continua
