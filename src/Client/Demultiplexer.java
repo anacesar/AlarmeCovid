@@ -114,17 +114,49 @@ public class Demultiplexer implements AlarmCovidInterface {
 
     @Override
     public int nr_people_location(int node) throws InvalidLocationException {
-        return 0;
+        String line = "node;" + node;
+        try {
+            this.conn.send(line.getBytes());
+
+            line = readNext();
+            System.out.println(line);
+            String[] answers = line.split(";");
+            if(answers[0].equals("e")) throw new InvalidLocationException(answers[0]);
+
+        } catch(IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return Integer.parseInt(line);
     }
 
     @Override
     public void notify_empty_location(String username, int node) throws InvalidLocationException {
+        String line = "username;" + username + ";" + "node;" + node;
+        try {
+            this.conn.send(line.getBytes());
 
+            line = readNext();
+            System.out.println(line);
+            String[] answers = line.split(";");
+            if(answers[0].equals("e")) throw new InvalidLocationException(answers[1]);
+        } catch(IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public void update_location(String username, int new_location) {
+    public void update_location(String username, int new_location) throws InvalidLocationException {
+        String line = "username;" + ";" + "new_location;" + new_location;
+        try {
+            this.conn.send(line.getBytes());
 
+            line = readNext();
+            System.out.println(line);
+            String[] answers = line.split(";");
+            if(answers[0].equals("e")) throw new InvalidLocationException(answers[0]);
+        } catch(IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

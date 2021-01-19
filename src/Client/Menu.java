@@ -1,6 +1,7 @@
 package Client;
 
 import exceptions.AlreadyRegistedException;
+import exceptions.InvalidLocationException;
 import exceptions.InvalidLoginException;
 import exceptions.SpecialPasswordInvalidException;
 
@@ -45,14 +46,73 @@ public class Menu {
                         }
                         break;
                 }
-            } else mainMenu();
+            }else{
+                mainMenu();
+            }
         } while (!input.equals("exit"));
     }
 
     public void mainMenu(){
         //fazer get do mapa e devolver interacao
         /*atualizar localizacao , consultar mapa , reportar positivo*/
+
+        String input = null;
+        List<String> userInput;
+        do {
+            if(user != null){
+                input = UserInterface.showMainMenu();
+                switch (input) {
+                    /* update location */
+                    case "update":
+                        userInput = UserInterface.showUpdateLocationMenu();
+                        try{
+                            demultiplexer.update_location(user, Integer.parseInt(userInput.get(0)));
+                            user = userInput.get(0);
+                        }catch(InvalidLocationException e){
+                            System.out.println(e.getMessage());
+                        }
+                        break;
+                    /* view map */
+                    case "view":
+                        userInput = UserInterface.showViewLocationMenu();
+                        try{
+                            demultiplexer.nr_people_location(Integer.parseInt(userInput.get(0)));
+                            user = userInput.get(0);
+
+                            if(user.equals("0")){
+                                userInput = UserInterface.showViewLocationMenu();
+                            } else{
+                                userInput = UserInterface.showEmptyLocationMenu();
+                                try{
+                                    demultiplexer.notify_empty_location(user,Integer.parseInt(userInput.get(0)));
+                                    user = userInput.get(0);
+                                }catch (InvalidLocationException e){
+                                    System.out.println(e.getMessage());
+                                }
+                            }
+
+                        }catch(InvalidLocationException e){
+                            System.out.println(e.getMessage());
+                        }
+                        break;
+
+                    /* report positive */
+                    case "positive":
+                        userInput = UserInterface.showReportPositiveMenu();
+                        try{
+                            demultiplexer.notify_positive(user);
+                            user = userInput.get(0);
+                        }catch(Exception e){
+                            System.out.println(e.getMessage());
+                        }
+                        break;
+                }
+            }
+        } while (!input.equals("logout"));
+
     }
+
+
     /* client menu */
 
    // deml . send ("consulta", nodo);

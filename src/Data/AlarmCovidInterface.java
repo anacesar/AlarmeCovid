@@ -9,7 +9,7 @@ public interface AlarmCovidInterface {
     void notify_positive(String username);
     int nr_people_location(int node) throws InvalidLocationException;
     void notify_empty_location(String usename, int node) throws InvalidLocationException;
-    void update_location(String username, int new_location);
+    void update_location(String username, int new_location) throws InvalidLocationException;
 
     //special client
     void download_map();
