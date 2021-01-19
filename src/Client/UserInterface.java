@@ -1,8 +1,6 @@
 package Client;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class UserInterface {
     private static Scanner scanner = new Scanner(System.in);
@@ -10,6 +8,7 @@ public class UserInterface {
     public static class Menu {
         private List<String> options;
         private String name;
+
 
         public Menu(List<String> options, String name){
             setOptions(options);
@@ -32,6 +31,20 @@ public class UserInterface {
             System.out.println("--------------------------------------------------------------------");
             System.out.println("Select one available option");
         }
+    }
+
+    public static class mapViewer {
+        private int n; //nr of nodes in map
+        private Map<Integer, String> map = new HashMap<>();
+
+        public mapViewer(int N){
+
+        }
+
+        public void location_info(int node, String name){
+            map.put(node, name);
+        }
+
     }
 
     public static void waitEnter() {

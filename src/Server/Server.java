@@ -1,7 +1,6 @@
 package Server;
 
 import Client.ClientConnection;
-import Client.ClientConnection.Message;
 import Data.Data;
 
 import java.io.IOException;
@@ -16,6 +15,7 @@ public class Server {
 
     public static void main(String[] args) throws Exception {
         System.out.println("Initializing server...");
+        System.out.println(Integer.parseInt("3def"));
         serverSocket = new ServerSocket(12345);
         data = new Data();
 

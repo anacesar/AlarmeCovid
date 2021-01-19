@@ -50,6 +50,7 @@ public class Menu {
     }
 
     public void mainMenu(){
+        //fazer get do mapa e devolver interacao
         /*atualizar localizacao , consultar mapa , reportar positivo*/
     }
     /* client menu */

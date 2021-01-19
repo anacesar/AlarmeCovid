@@ -7,27 +7,38 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class myMap {
+    private int N; //map matrix NxN
+    private Location[][] map;
 
-    final int N = 5; //map matrix NxN
-    private Location[][] map = new Location[N][N];
-
-    public myMap() {
-        int i, j;
-        for(i=0; i<N; i++)
-            for(j=0; j<N; j++)
-                map[i][j] = new Location();
+    public myMap(int n) {
+        N = n;
+        map = new Location[N][N];
     }
 
     class Location {
+        private String address;
         private List<String> currentUsers; //list of current users in this location
         private List<String> history; //list of users visited this location
 
         private Lock location_lock = new ReentrantLock();
         private Condition isEmpty = location_lock.newCondition();
 
-        public void entry(String username){
+        public Location(){
+            address = "no name";
+            currentUsers = new ArrayList<>();
+            history = new ArrayList<>();
+        }
+
+        public Location(String address, List<String> currentUsers, List<String> history){
+            this.address = address;
+            this.currentUsers = new ArrayList<>(currentUsers);
+            this.history = new ArrayList<>(history);
+        }
+
+        public int entry(String username){
             currentUsers.add(username);
             if(! history.contains(username)) history.add(username);
+            return currentUsers.size();
         }
 
         public void exit(String username){
@@ -64,16 +75,8 @@ public class myMap {
         return map[node/N][node%N];
     }
 
-    /* not needed */
-    public int getNode(Location location) {
-        int node = -1;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < N; j++) {
-                node++;
-                if(map[i][j].equals(location)) return node;
-            }
-        }
-        return node;
+    public void putLocation(int node, Location location){
+        this.map[node/N][node%N] = location;
     }
 
 }

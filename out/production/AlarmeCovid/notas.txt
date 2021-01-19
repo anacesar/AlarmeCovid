@@ -20,3 +20,22 @@ se nao guardas no data notifi associadas ao user
 se esta doente
 verifica se ut tem notificacoes para receber ? se tem, manda pelo conn
 se nao continua
+
+
+
+perguntar ao neves :
+
+professor o envio de notificacoes tem que ser como o professor unico ou multi thread??
+isto e o servidor pode criar novas threads para enviar as notificacoes ou tem que ser o "mesmo" a fazer
+
+
+
+3
+Rua do CRLH;3;ana;aka;magz;4;nsn;sadf;ds;d
+Travezaa;3;sdfg;Sdf;Sdf
+Z
+z
+zz
+z
+zz
+z

@@ -4,6 +4,9 @@ import Client.ClientConnection;
 import Data.myMap.Location;
 import exceptions.*;
 
+
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,18 +34,58 @@ public class Data implements AlarmCovidInterface{
     private final String USER_PATH;
     private final String MAP_PATH;
     private final String special_password = "12345";
+    public int N = 0;
 
     public Data(){
         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
         users = new HashMap<>();
-        map = new myMap();
         notification = new HashMap<>();
         users_logged = new HashMap<>();
 
         /* load file information */
         USER_PATH  = s + "/src/DataBase/user.csv";
         MAP_PATH = s + "/src/DataBase/map.csv";
+        fillDAO();
+    }
+
+    /* Preenche as estruturas de dados users e musics com a informacao dos ficheiros csv */
+    public void fillDAO(){
+        try {
+            //BufferedReader user_br = new BufferedReader(new FileReader(USER_PATH));
+            BufferedReader map_br = new BufferedReader(new FileReader(MAP_PATH));
+            String line;
+
+            /* MapDAO */
+            Location location;
+            String[] location_line;
+
+            if( (line = map_br.readLine()) != null )
+                this.N = Integer.parseInt(line);
+            /* construtor myMap with N*N locations */
+            this.map = new myMap(this.N);
+
+            /* construtor locations */
+            while( (line = map_br.readLine()) != null ){
+                location_line = line.split(";");
+
+                for(String user : location_line[1].split(",")){
+                    System.out.println(user);
+
+                }
+                System.out.println("nr_ cur " + nr_cur + "nr_hist " + nr_history);
+                List<String> cur_users = new ArrayList<>(), his_users = new ArrayList<>();
+                for(int i = 1; i < nr_cur; i++)
+                    cur_users.add(location_line[i]);
+                for(int i = nr_history; i < nr_cur; i++)
+                    cur_users.add(location_line[i]);
+
+
+            }
+
+        }catch(/*FileNotFoundException e*/ Exception e) {
+           // e.printStackTrace();
+        }
     }
 
     @Override
@@ -162,7 +205,9 @@ public class Data implements AlarmCovidInterface{
             u.unlock();
 
             /* entering new place */
-            new_loc.entry(username); //ver se 0 pessoas
+            if(new_loc.entry(username) == 0){
+                //Notificator not = new Notificator()
+            }
             new_loc.unlock();
 
         } catch(Exception e) {
@@ -171,10 +216,12 @@ public class Data implements AlarmCovidInterface{
 
     }
 
+
     @Override
     public void download_map() {
 
     }
+
 
     /* Save users connection in notification map*/
     public void addToNotification(String username , ClientConnection cc) {
@@ -185,10 +232,26 @@ public class Data implements AlarmCovidInterface{
     }
 
     /* Save users connection in notification map*/
+    public void removeNotification(String username) {
+        notification_lock.lock();
+        this.notification.remove(username);
+        //if(users_logged.containsKey(username)) users_logged.get(username).forEach(notification -> cc.send(notification));
+        notification_lock.unlock();
+    }
+
+    /* Save users connection in notification map*/
     public void sendNotification(String username , String message) throws IOException {
         notification_lock.lock();
         this.notification.get(username).send(message);
         notification_lock.unlock();
+    }
+
+    /* Warns clients about shutdown */
+    public void warnClientsAboutShutdown() {
+        notification_lock.lock();
+        this.notification.values().forEach(cc -> { try { cc.send("serverDown");} catch(IOException e) { e.printStackTrace(); }
+        });
+        this.notification_lock.unlock();
     }
 
 
