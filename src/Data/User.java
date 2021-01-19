@@ -1,24 +1,27 @@
 package Data;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class User {
     private boolean special_user;
-    private boolean sick; //ou LocalDateTime sick ??? null quando nao esta doente
+    private LocalDate sick; //ou LocalDateTime sick ??? null quando nao esta doente
     private String username;
     private String password;
     //private String address;
     private int localizacao;
     private List<String> riskContact;
-    private ReentrantLock lockUser;
+    private Lock lock;
     private Condition hasNotifications;
     private List<String> notifications;
 
     public User(){
         this.special_user = false;
+        this.sick = null;
         this.username = "";
         this.password = "";
         this.localizacao = 0;
@@ -28,7 +31,7 @@ public class User {
 
     public User(String username, String password, Boolean special) {
         this.special_user = special;
-        this.sick = false;
+        this.sick = null;
         this.username = username;
         this.password = password;
         this.localizacao = 0; /* default location for new user */
@@ -49,9 +52,9 @@ public class User {
 
     public void isSpecial_user(boolean special_user){ this.special_user = special_user;}
 
-    public boolean isSick(){ return sick;}
+    public LocalDate isSick(){ return sick;}
 
-    public void isSick(boolean sick){ this.sick = sick;}
+    public void isSick(LocalDate sick){ this.sick = sick;}
 
     public String getUsername() {
         return this.username;

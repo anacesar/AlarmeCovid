@@ -1,10 +1,11 @@
 package Server;
 
-import Client.Client;
 import Client.ClientConnection;
 
 import Data.Data;
 import exceptions.*;
+
+import java.io.IOException;
 
 public class Worker implements Runnable {
     private Data data;
@@ -21,54 +22,44 @@ public class Worker implements Runnable {
     @Override
     public void run() {
         try (client) {
-            for (;;) {
+
+            /** authentication **/
+            while( !log ) {
                 String msg = new String(client.receive());
                 String[] request = msg.split(";");
-                /** authentication **/
-                while( !log ){
-                    System.out.println(msg);
-                    switch (request[0]){
-                        case "login" : try{
+                System.out.println(msg);
+                switch(request[0]) {
+                    case "login":
+                        try {
                             data.authentication(request[1], request[2]);
                             this.username = request[1];
                             log = true;
-                        }catch (InvalidLoginException l){
+                        } catch(InvalidLoginException l) {
                             client.send("e;" + l.getMessage());
                         }
-                            break;
-                        case "register" : try{
-                            data.registration(request[1],request[2], request[3]);
+                        break;
+                    case "register":
+                        try {
+                            data.registration(request[1], request[2], request[3]);
                             this.username = request[1];
                             log = true;
-                        }catch (AlreadyRegistedException | SpecialPasswordInvalidException e){
+                        } catch(AlreadyRegistedException | SpecialPasswordInvalidException e) {
                             client.send("e;" + e.getMessage());
                         }
-                            break;
-                        /*case "notification" : this.log = true;
-                            this.data.addToNotifications(request[1], client);
-                            return;
-
-                         */
-                        case "logout" : return;
-                        default : break;
-                    }
-                    if( !log ) {
-                        try {
-                            msg = new String(client.receive());
-                            request = msg.split(";");
-                        }catch (NullPointerException np){
-                            return;
-                        }
-                    }
+                        break;
+                    case "logout":
+                        return;
+                    default:
+                        break;
                 }
-                //client.send("Success");
+            }
+            data.addToNotification(username, client);
+            client.send("Success with Login");
+            System.out.println("sended success message");
 
-                System.out.println("Replying to: " + msg);
-                client.send(msg.toUpperCase().getBytes());
+            while(true){
 
-                //Autenticar Utilizador
-
-                //Registar Utilizador
+            }
 
                 //comunicar positivo
 
@@ -79,9 +70,10 @@ public class Worker implements Runnable {
                 //atualizar localizacao
 
                 //get num pessoas doentes numa localizacao (cliente especial)
-            }
-        } catch (Exception ignored) { }
-    };
+            } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /*
     public void run() {

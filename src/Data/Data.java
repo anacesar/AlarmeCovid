@@ -1,54 +1,53 @@
 package Data;
 
-import Client.Demultiplexer.Notification;
-import exceptions.AlreadyRegistedException;
-import exceptions.InvalidLocationException;
-import exceptions.InvalidLoginException;
-import exceptions.SpecialPasswordInvalidException;
+import Client.ClientConnection;
+import Data.myMap.Location;
+import exceptions.*;
 
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock ;
 
-import Data.myMap.Location;
 
 public class Data implements AlarmCovidInterface{
     private Map<String,User> users;
     private myMap map;
-    //private HashMap<String, DataOutputStream> notification;
-    private final String USER_PATH;
-    private final String MAP_PATH;
-    private final String special_password = "12345";
-
+    /* logged users and connection associated */
+    private HashMap<String, ClientConnection> notification;
     /* notifications for users waiting to log in */
-    private Map<String, Notification> users_logged;
+    private Map<String, List<String>> users_logged;
 
     private Lock users_lock = new ReentrantLock();
     private Lock map_lock = new ReentrantLock();
     private Lock notification_lock = new ReentrantLock();
 
+    private final String USER_PATH;
+    private final String MAP_PATH;
+    private final String special_password = "12345";
+
     public Data(){
         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
-        USER_PATH  = s + "/src/DataBase/user.csv";
-        MAP_PATH = s + "/src/DataBase/map.csv";
         users = new HashMap<>();
         map = new myMap();
-        /* load file information */
+        notification = new HashMap<>();
         users_logged = new HashMap<>();
+
+        /* load file information */
+        USER_PATH  = s + "/src/DataBase/user.csv";
+        MAP_PATH = s + "/src/DataBase/map.csv";
     }
 
     @Override
     public void registration(String username, String password, String special_pass) throws AlreadyRegistedException, SpecialPasswordInvalidException {
         Boolean special;
-        System.out.println(special_pass);
         try{
             users_lock.lock();
             if(users.containsKey(username)) throw new AlreadyRegistedException();
@@ -59,8 +58,6 @@ public class Data implements AlarmCovidInterface{
                     else throw new SpecialPasswordInvalidException();
                 }
                 users.put(username, new User(username, password, special));
-                System.out.println("done");
-
             }
         }finally {
             users_lock.unlock();
@@ -68,6 +65,7 @@ public class Data implements AlarmCovidInterface{
     }
 
     @Override
+    // falta ver se tem notificacoes, ver se esta doente
     public void authentication(String username, String password) throws InvalidLoginException {
         try{
             users_lock.lock();
@@ -83,10 +81,27 @@ public class Data implements AlarmCovidInterface{
     public void notify_positive(String username) {
         try {
             users_lock.lock();
+            User user = users.get(username);
+            user.lock();
+            users_lock.unlock();
+            String message = ": Risk Contact Detected! Please pay attention for the next days!";
+            user.isSick(LocalDate.now()); //set sick to this moment
+            user.getRiskContact().forEach(risk -> {
+                if(notification.containsKey(risk)) { //user is logged
+                    try {
+                        /* notificator*/
+                        sendNotification(risk, message);
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                    }
+                }else{ //save notification for later log in
+                    if(users_logged.containsKey(risk)){
+                       users_logged.put(risk, new ArrayList<>());
+                    }
+                }
+            });
             //notificar todos os risk contact
 
-
-            //setSick == true
         }finally {
             users_lock.unlock();
         }
@@ -95,7 +110,12 @@ public class Data implements AlarmCovidInterface{
     @Override
     /* when a user wants to be notified how many people are in a location */
     public int nr_people_location(int node) throws InvalidLocationException {
-        return 0;
+        map_lock.lock();
+        try{
+            return 0;
+        }finally {
+            map_lock.unlock();
+        }
     }
 
     @Override
@@ -112,17 +132,38 @@ public class Data implements AlarmCovidInterface{
             User u = users.get(username);
             u.lock();
             users_lock.unlock();
+
             int old_location = u.getLocalizacao();
             u.setLocalizacao(new_location);
+            u.unlock();
+
             map_lock.lock();
+            /* lock locations needed changes in min order to avoid deadlock*/
             Location old = map.getLocation(old_location);
-            old.exit(username);
             Location new_loc = map.getLocation(new_location);
-            // add to riskContact
+
+            if(old_location < new_location){ // necessario????
+                old.lock();
+                new_loc.lock();
+            }else{
+                new_loc.lock();
+                old.lock();
+            }
+            map_lock.unlock();
+
+            /* leaving old place */
+            old.exit(username); //check if its empty after leaving place
+            old.unlock();
+
+            // add list of current users in this place to username risk contacts
             List<String> contacts = new_loc.getCurrentUsers();
+            u.lock();
             u.addRiskContact(contacts);
             u.unlock();
-            new_loc.entry(username);
+
+            /* entering new place */
+            new_loc.entry(username); //ver se 0 pessoas
+            new_loc.unlock();
 
         } catch(Exception e) {
             e.printStackTrace();
@@ -134,4 +175,21 @@ public class Data implements AlarmCovidInterface{
     public void download_map() {
 
     }
+
+    /* Save users connection in notification map*/
+    public void addToNotification(String username , ClientConnection cc) {
+        notification_lock.lock();
+        this.notification.put(username, cc);
+        //if(users_logged.containsKey(username)) users_logged.get(username).forEach(notification -> cc.send(notification));
+        notification_lock.unlock();
+    }
+
+    /* Save users connection in notification map*/
+    public void sendNotification(String username , String message) throws IOException {
+        notification_lock.lock();
+        this.notification.get(username).send(message);
+        notification_lock.unlock();
+    }
+
+
 }

@@ -17,11 +17,11 @@ public class Client {
 
         /* Create Demultiplexer */
         Demultiplexer demultiplexer = new Demultiplexer(clientConnection);
-        //demultiplexer.start(); //o cliente vai estar pronto para comunicar com sev e esperar por not
+        demultiplexer.start(); //o cliente vai estar pronto para comunicar com sev e esperar por not
 
         /* Launch the first menu */
         Menu menu = new Menu(demultiplexer);
-        menu.firstMenu(); //cliente tem interacao com o user
+        menu.start(); //cliente tem interacao com o user
 
         /* wait for it to end ... */
         buffer.close();

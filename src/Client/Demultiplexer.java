@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Demultiplexer implements AlarmCovidInterface {
     private ClientConnection conn;
+    private List<String> answers;
     private Map<Integer, Notification> notifications = new HashMap<>(); //Integer (type of notification)-> messages
     private Lock lock = new ReentrantLock();
     private Condition wait_notifications = lock.newCondition();
@@ -32,109 +33,47 @@ public class Demultiplexer implements AlarmCovidInterface {
 
     public Demultiplexer(ClientConnection conn){
         this.conn = conn;
-
+        this.answers = new ArrayList<>();
     }
-
-
-    // interaction with the server
-    Runnable interaction = () -> {
-        try {
-
-            // notificacao quando o servidor tem uma notif p mandar p cliente
-            byte[] data = this.conn.receive();
-            /* check messages tag */
-
-            /*
-            switch(m.type){
-                case 1: //risk contact notification
-                    break;
-                case 2: //location empty notification
-                    break;
-                default:
-                    break;
-            }
-            lock.lock();
-            try{
-                Message me = get(frame.tag);
-                me.queue.add(frame.data);
-                ff.c.signal();
-            }finally {
-                lock.unlock();
-            }
-*/
-        }catch(IOException e) {
-            lock.lock(); //e uma variavel partilhada
-            try{
-                exception = e;
-                //notifications.forEach((k, ff) -> ff..signalAll());
-            }finally {
-                lock.unlock();
-            }
-        }
-    };
-
-    //wait for notification signal
-    Runnable notifier = () -> {
-        lock.lock();
-        try {
-            while(notifications.isEmpty()) wait_notifications.await();
-            /* do stuff with notifications */
-
-        } catch(InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            lock.unlock();
-        }
-    };
 
 
     public void start() {
-        Runnable notifier = () -> {
-            lock.lock();
-            try {
-                while(notifications.isEmpty()) wait_notifications.await();
+        new Thread( () -> {
+            String message = "";
+            while(true){
+                try {
+                    message = new String(conn.receive());
+                    System.out.println(message);
+                    lock.lock();
+                    try{
+                        if(message.charAt(0) == ':'){
+                            System.out.println("---------------------------------------------------------------------");
+                            System.out.println("Notification " + message);
+                            System.out.println("---------------------------------------------------------------------");
+                        }else synchronized (answers) {
+                            answers.add(message);
+                            answers.notify();
+                        }
+                    }finally {
+                        lock.unlock();
+                    }
 
-            } catch(InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                lock.unlock();
+                } catch(IOException e) {
+                    e.printStackTrace();
+                }
             }
-        };
+        }).start();
     }
 
-
-
-    //demultiplexer verifica tipo de mensagens recebida pelo servidor
-
-    /* send different types of messages from user */
-
-    //out.write("login username password");
-
-
-    /*
-    public void send(Message message) throws IOException {
-        this.conn.send(message);
-    }
-
-     */
-
-
-    /* login and register */
-    public void send(String op, String username, String password) throws IOException {
-        String line = op + " " + username + " " + " " + password;
-        this.conn.send(line.getBytes());
-
-    }
-
-    /* send of location */
-    public void send(String op, int nodo) throws IOException{
-        String line = op + " " + nodo;
-        this.conn.send(line.getBytes());
-    }
-
-
-    public byte[] receive() throws IOException, InterruptedException {
-        return this.conn.receive();
+    public String readNext() throws InterruptedException {
+        synchronized (answers) {
+            while (answers.isEmpty()) {
+                answers.wait();
+            }
+            String next = answers.get(0);
+            answers.remove(0);
+            return next;
+        }
     }
 
     @Override
@@ -143,12 +82,12 @@ public class Demultiplexer implements AlarmCovidInterface {
         try {
             this.conn.send(line.getBytes());
 
-            line = new String(this.conn.receive());
+            line = readNext();
             System.out.println(line);
             String[] answers = line.split(";");
             //check da exception
             if(answers[0].equals("e")) throw new AlreadyRegistedException(answers[1]);
-        } catch(IOException e) {
+        } catch(IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -159,11 +98,11 @@ public class Demultiplexer implements AlarmCovidInterface {
         try {
             this.conn.send(line.getBytes());
 
-            line = new String(this.conn.receive());
+            line = readNext();
             System.out.println(line);
             String[] answers = line.split(";");
             if(answers[0].equals("e")) throw new InvalidLoginException(answers[1]);
-        } catch(IOException e) {
+        } catch(IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
