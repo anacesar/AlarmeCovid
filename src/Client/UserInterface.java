@@ -89,4 +89,95 @@ public class UserInterface {
 
         return answers;
     }
+
+    public static String showMainMenu() {
+        List<String> options = new ArrayList<>();
+        options.add("1 - Update Location");
+        options.add("2 - Choose Location");
+        options.add("3 - Report Positive Case");
+        options.add("4 - Logout");
+        Menu showMainMenu = new Menu(options, "Main Menu  ");
+        showMainMenu.show();
+        String selectedOption = scanner.nextLine();
+        String res = null;
+        switch (selectedOption) {
+            case "1":
+                res = "update";
+                break;
+            case "2":
+                res = "view";
+                break;
+            case "3":
+                res = "positive";
+                break;
+            case "4":
+                res = "logout";
+                break;
+            default:
+                System.out.println("Please select one of the available options");
+                waitEnter();
+                res = showMainMenu();
+        }
+        return res;
+    }
+
+
+    public static List<String> showUpdateLocationMenu(){
+        List<String> answers = new ArrayList<>();
+        System.out.println("Change Location ");
+        answers.add(scanner.nextLine());
+
+        return answers;
+    }
+
+
+    public static List<String> showViewLocationMenu(){
+        List<String> answers = new ArrayList<>();
+        String location = null;
+        System.out.println("Choose Next Location: ");
+        location = scanner.nextLine();
+        answers.add(location);
+
+
+        return answers;
+    }
+
+    public static List<String> showEmptyLocationMenu(){
+        List<String> answers = new ArrayList<>();
+        System.out.println("Would you like to be notified when is empty?");
+        System.out.println("1- Yes ");
+        System.out.println("2- No ");
+        answers.add(scanner.nextLine());
+
+        return answers;
+    }
+
+
+    public static List<String> showReportPositiveMenu(){
+        List<String> answers = new ArrayList<>();
+        System.out.println("Would you like to report positive? ");
+        System.out.println("1- Yes ");
+        System.out.println("2- No ");
+        answers.add(scanner.nextLine());
+
+        return answers;
+    }
+
+
+    /*
+    *
+    * Menu "Tens a mania que és special"
+    *
+    * */
+    public static List<String> showSpecialMenu(){
+        List<String> answers = new ArrayList<>();
+        System.out.println("Do you have special permissions? ");
+        System.out.println("1- Yes ");
+        System.out.println("2- No ");
+        answers.add(scanner.nextLine());
+
+        return answers;
+    }
+
+
 }
