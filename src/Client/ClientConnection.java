@@ -11,27 +11,11 @@ public class ClientConnection implements AutoCloseable {
     private ReentrantLock wlock = new ReentrantLock();
     private ReentrantLock rlock = new ReentrantLock();
 
-    public class Message{
-        String type;
-        byte[] data;
-
-        public Message(byte[] data){
-            data = data;
-        }
-
-        /* serialize and deserialize methods */
-    }
-
     public ClientConnection(Socket socket) throws IOException {
         this.socket = socket;
         this.out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
         this.in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
     }
-
-
-    /*metodos para enviar resultados para o servidor */
-
-    /* send and receive */
 
     public void send(byte[] data) throws IOException {
         try {
@@ -74,6 +58,4 @@ public class ClientConnection implements AutoCloseable {
         socket.shutdownOutput();
         socket.close();
     }
-
-
 }

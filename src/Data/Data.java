@@ -4,19 +4,15 @@ import Client.ClientConnection;
 import Data.myMap.Location;
 import exceptions.*;
 
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock ;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class Data implements AlarmCovidInterface{
@@ -43,8 +39,8 @@ public class Data implements AlarmCovidInterface{
         notification = new HashMap<>();
         users_logged = new HashMap<>();
 
-        /* load file information */
-        USER_PATH  = s + "/src/DataBase/user.csv";
+        /* load files information */
+        USER_PATH  = s + "/src/DataBase/users.csv";
         MAP_PATH = s + "/src/DataBase/map.csv";
         fillDAO();
     }
@@ -52,12 +48,24 @@ public class Data implements AlarmCovidInterface{
     /* Preenche as estruturas de dados users e musics com a informacao dos ficheiros csv */
     public void fillDAO(){
         try {
-            //BufferedReader user_br = new BufferedReader(new FileReader(USER_PATH));
+            BufferedReader user_br = new BufferedReader(new FileReader(USER_PATH));
             BufferedReader map_br = new BufferedReader(new FileReader(MAP_PATH));
             String line;
 
+            /* UserDAO*/
+            User user;
+            String[] userLine;
+            List<String> riskContact;
+            while( (line = user_br.readLine()) != null ){
+                userLine = line.split(";");
+
+                riskContact = new ArrayList<>(Arrays.asList(userLine[4].split(",")));
+
+                user = new User(userLine[0], userLine[1], Boolean.parseBoolean(userLine[2]), Integer.parseInt(userLine[3]), riskContact);
+                users.put(user.getUsername(), user);
+            }
+
             /* MapDAO */
-            Location location;
             String[] location_line;
 
             if( (line = map_br.readLine()) != null )
@@ -65,32 +73,26 @@ public class Data implements AlarmCovidInterface{
             /* construtor myMap with N*N locations */
             this.map = new myMap(this.N);
 
+            List<String> cur_users, hist_users;
+
             /* construtor locations */
-            while( (line = map_br.readLine()) != null ){
+            while((line = map_br.readLine()) != null) {
                 location_line = line.split(";");
 
-                for(String user : location_line[1].split(",")){
-                    System.out.println(user);
+                cur_users = new ArrayList<>(Arrays.asList(location_line[2].split(",")));
+                hist_users = new ArrayList<>(Arrays.asList(location_line[3].split(",")));
 
-                }
-                System.out.println("nr_ cur " + nr_cur + "nr_hist " + nr_history);
-                List<String> cur_users = new ArrayList<>(), his_users = new ArrayList<>();
-                for(int i = 1; i < nr_cur; i++)
-                    cur_users.add(location_line[i]);
-                for(int i = nr_history; i < nr_cur; i++)
-                    cur_users.add(location_line[i]);
-
-
+                this.map.putLocation(Integer.parseInt(location_line[0]), new Location(location_line[1], cur_users, hist_users));
             }
 
-        }catch(/*FileNotFoundException e*/ Exception e) {
-           // e.printStackTrace();
+        } catch(IOException e) {
+            System.out.println("An error ocurred during load of csv files.. \n" + e.getMessage());
         }
     }
 
     @Override
     public void registration(String username, String password, String special_pass) throws AlreadyRegistedException, SpecialPasswordInvalidException {
-        Boolean special;
+        boolean special;
         try{
             users_lock.lock();
             if(users.containsKey(username)) throw new AlreadyRegistedException();
@@ -155,7 +157,8 @@ public class Data implements AlarmCovidInterface{
     public int nr_people_location(int node) throws InvalidLocationException {
         map_lock.lock();
         try{
-            return 0;
+            if(node >= N*N) throw new InvalidLocationException();
+            return map.nr_people(node);
         }finally {
             map_lock.unlock();
         }

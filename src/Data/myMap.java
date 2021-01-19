@@ -13,9 +13,10 @@ public class myMap {
     public myMap(int n) {
         N = n;
         map = new Location[N][N];
+        map[0][0] = new Location(); //users home -> node 0
     }
 
-    class Location {
+    static class Location {
         private String address;
         private List<String> currentUsers; //list of current users in this location
         private List<String> history; //list of users visited this location
@@ -24,9 +25,7 @@ public class myMap {
         private Condition isEmpty = location_lock.newCondition();
 
         public Location(){
-            address = "no name";
-            currentUsers = new ArrayList<>();
-            history = new ArrayList<>();
+            address = "";
         }
 
         public Location(String address, List<String> currentUsers, List<String> history){
@@ -69,6 +68,15 @@ public class myMap {
         public void lock(){ this.location_lock.lock();}
 
         public void unlock(){ this.location_lock.unlock();}
+
+        @Override
+        public String toString() {
+            return "Location{" +
+                    "address='" + address + '\'' +
+                    ", currentUsers=" + currentUsers +
+                    ", history=" + history +
+                    '}';
+        }
     }
 
     public Location getLocation(int node){
@@ -77,6 +85,10 @@ public class myMap {
 
     public void putLocation(int node, Location location){
         this.map[node/N][node%N] = location;
+    }
+
+    public int nr_people(int node){
+        return getLocation(node).currentUsers.size();
     }
 
 }

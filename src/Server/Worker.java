@@ -21,11 +21,12 @@ public class Worker implements Runnable {
     }
 
     @Override
+    //todo its ending server thread when client logs out
     public void run() {
-        String msg = null;
-        String[] request = null;
+        String msg;
+        String[] request;
         try (client) {
-            /** authentication **/
+            /* authentication */
             while( !log ) {
                 msg = new String(client.receive());
                 request = msg.split(";");
@@ -49,10 +50,8 @@ public class Worker implements Runnable {
                             client.send("e;" + e.getMessage());
                         }
                         break;
-                    case "logout":
+                    case "exit":
                         return;
-                    default:
-                        break;
                 }
             }
             data.addToNotification(username, client);
@@ -84,7 +83,8 @@ public class Worker implements Runnable {
                         break;
                     case "view":
                         try{
-                            data.nr_people_location(Integer.parseInt(request[1]));
+                            int nr = data.nr_people_location(Integer.parseInt(request[1]));
+                            client.send(String.valueOf(nr));
                         }catch(InvalidLocationException e){ client.send("e;" + e.getMessage());}
                         break;
                     case "positive":
@@ -96,6 +96,7 @@ public class Worker implements Runnable {
                     case "map" : //check for N in matrix
 
                         break;
+
                     case "logout": {
                         log = false;
                         this.data.sendNotification(this.username, "stop");

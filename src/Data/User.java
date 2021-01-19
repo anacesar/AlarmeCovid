@@ -3,7 +3,6 @@ package Data;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -16,26 +15,25 @@ public class User {
     private int localizacao;
     private List<String> riskContact;
     private Lock lock;
-    private Condition hasNotifications;
-    private List<String> notifications;
-
-    public User(){
-        this.special_user = false;
-        this.sick = null;
-        this.username = "";
-        this.password = "";
-        this.localizacao = 0;
-        this.riskContact = new ArrayList<>();
-        this.lock = new ReentrantLock();
-    }
 
     public User(String username, String password, Boolean special) {
         this.special_user = special;
         this.sick = null;
         this.username = username;
         this.password = password;
-        this.localizacao = 0; /* default location for new user */
+        this.localizacao = 0; /* default location -> at home */
         this.riskContact = new ArrayList<>();
+        this.lock = new ReentrantLock();
+    }
+
+    public User(String username, String password, Boolean special, int location, List<String> riskContact) {
+        this.special_user = special;
+        this.sick = null;
+        this.username = username;
+        this.password = password;
+        this.localizacao = location;
+        this.riskContact = new ArrayList<>(riskContact);
+        this.lock = new ReentrantLock();
     }
 
     public User(User u) {
@@ -46,7 +44,6 @@ public class User {
         this.riskContact = u.getRiskContact();
 
     }
-
 
     public boolean isSpecial_user(){ return special_user;}
 
@@ -102,4 +99,14 @@ public class User {
         this.lock.unlock();
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "special_user=" + special_user +
+                ", sick=" + sick +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", localizacao=" + localizacao +
+                '}';
+    }
 }

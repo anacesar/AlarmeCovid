@@ -11,22 +11,16 @@ public class UserInterface {
 
 
         public Menu(List<String> options, String name){
-            setOptions(options);
+            this.options = new ArrayList<>(options);
             this.name = name;
         }
-
-        public void setOptions(List<String> ops){
-            this.options = new ArrayList<>();
-            ops.forEach(o -> {this.options.add(o);});
-        }
-
 
         public void show(){
             System.out.println("--------------------------------------------------------------------");
             System.out.println("|                          " + this.name + "                          |");
             System.out.println("--------------------------------------------------------------------");
             for(String op: this.options){
-                System.out.println(op.toString());
+                System.out.println(op);
             }
             System.out.println("--------------------------------------------------------------------");
             System.out.println("Select one available option");
@@ -36,6 +30,7 @@ public class UserInterface {
     public static class mapViewer {
         private int n; //nr of nodes in map
         private Map<Integer, String> map = new HashMap<>();
+        public static boolean loaded = false;
 
         public mapViewer(int N){
 
@@ -60,7 +55,7 @@ public class UserInterface {
         Menu welcomeMenu = new Menu(options, "Welcome Menu  ");
         welcomeMenu.show();
         String selectedOption = scanner.nextLine();
-        String res = null;
+        String res;
         switch (selectedOption) {
             case "1":
                 res = "login";
@@ -112,7 +107,7 @@ public class UserInterface {
         Menu showMainMenu = new Menu(options, "Main Menu  ");
         showMainMenu.show();
         String selectedOption = scanner.nextLine();
-        String res = null;
+        String res;
         switch (selectedOption) {
             case "1":
                 res = "update";
@@ -144,9 +139,10 @@ public class UserInterface {
     }
 
 
+    //todo check if location is right
     public static List<String> showViewLocationMenu(){
         List<String> answers = new ArrayList<>();
-        String location = null;
+        String location;
         System.out.println("Choose Next Location: ");
         location = scanner.nextLine();
         answers.add(location);

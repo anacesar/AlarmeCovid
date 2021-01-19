@@ -1,26 +1,18 @@
 package Client;
 
-import exceptions.AlreadyRegistedException;
-import exceptions.InvalidLocationException;
-import exceptions.InvalidLoginException;
-import exceptions.SpecialPasswordInvalidException;
-
-import java.io.*;
+import exceptions.*;
 import java.util.List;
 
 public class Menu {
     private Demultiplexer demultiplexer;
     private String user;
-    private BufferedReader bufferedReader;
 
     public Menu(Demultiplexer demultiplexer) {
         this.demultiplexer = demultiplexer;
         this.user = null;
-        this.bufferedReader = new BufferedReader(new InputStreamReader(System.in));
     }
 
-
-    public void start() throws IOException {
+    public void start() {
         String input = null;
         List<String> userInput;
         do {
@@ -30,11 +22,14 @@ public class Menu {
                     case "login":
                         userInput = UserInterface.showLoginMenu();
                         try{
+                            //todo verification of special user
                             demultiplexer.authentication(userInput.get(0), userInput.get(1));
                             user = userInput.get(0);
                         }catch(InvalidLoginException e){
                             System.out.println(e.getMessage());
-                        }//catch(QuarantineException q) trying to login but cant access app
+                        }//catch(QuarantineException q){ //trying to login but cant access app
+                        //    System.out.println("You are still in quarantine! Please stay at home.."); input = "exit";
+                        //}
                         break;
                     case "register":
                         userInput = UserInterface.showRegisterMenu();
@@ -46,9 +41,7 @@ public class Menu {
                         }
                         break;
                 }
-            }else{
-                mainMenu();
-            }
+            }else mainMenu();
         } while (!input.equals("exit"));
     }
 
@@ -61,13 +54,13 @@ public class Menu {
         do {
             if(user != null){
                 input = UserInterface.showMainMenu();
+                System.out.println(input);
                 switch (input) {
                     /* update location */
                     case "update":
                         userInput = UserInterface.showUpdateLocationMenu();
                         try{
                             demultiplexer.update_location(user, Integer.parseInt(userInput.get(0)));
-                            user = userInput.get(0);
                         }catch(InvalidLocationException e){
                             System.out.println(e.getMessage());
                         }
@@ -77,7 +70,6 @@ public class Menu {
                         userInput = UserInterface.showViewLocationMenu();
                         try{
                             demultiplexer.nr_people_location(Integer.parseInt(userInput.get(0)));
-                            user = userInput.get(0);
 
                             if(user.equals("0")){
                                 userInput = UserInterface.showViewLocationMenu();
@@ -85,7 +77,6 @@ public class Menu {
                                 userInput = UserInterface.showEmptyLocationMenu();
                                 try{
                                     demultiplexer.notify_empty_location(user,Integer.parseInt(userInput.get(0)));
-                                    user = userInput.get(0);
                                 }catch (InvalidLocationException e){
                                     System.out.println(e.getMessage());
                                 }
@@ -95,19 +86,20 @@ public class Menu {
                             System.out.println(e.getMessage());
                         }
                         break;
-
                     /* report positive */
                     case "positive":
                         userInput = UserInterface.showReportPositiveMenu();
                         try{
                             demultiplexer.notify_positive(user);
-                            user = userInput.get(0);
                         }catch(Exception e){
                             System.out.println(e.getMessage());
                         }
                         break;
+                    case "logout":
+                        user = null;
+                        System.out.println("logout pressed");
                 }
-            }
+            }else start();
         } while (!input.equals("logout"));
 
     }
