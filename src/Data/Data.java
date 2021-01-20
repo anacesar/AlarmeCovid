@@ -19,7 +19,7 @@ public class Data implements AlarmCovidInterface{
     private Map<String,User> users;
     private myMap map;
     /* logged users and connection associated */
-    private HashMap<String, ClientConnection> notification;
+    private HashMap<String, ClientConnection> notification; //cc associada ao socket de notificacoes
     /* notifications for users waiting to log in */
     private Map<String, List<String>> users_logged;
 

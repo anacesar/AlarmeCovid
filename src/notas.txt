@@ -28,3 +28,6 @@ perguntar ao neves :
 professor o envio de notificacoes tem que ser como o professor unico ou multi thread??
 isto e o servidor pode criar novas threads para enviar as notificacoes ou tem que ser o "mesmo" a fazer
 
+Para o serviço não ficar vulnerável a clientes lentos, não deverá ter threads
+do servidor a escrever em mais do que um socket, devendo as escritas serem feitas por threads associadas a esse socket.
+--> atribuir uma thread a cada cliente ??

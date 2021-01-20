@@ -17,8 +17,10 @@ public class Client {
         demultiplexer.start(); //o cliente vai estar pronto para comunicar com sev e esperar por not
 
         /* Launch the first menu */
-        Menu menu = new Menu(demultiplexer);
-        menu.start(); //cliente tem interacao com o user
+        ClientController controller = new ClientController(demultiplexer);
+        controller.start(); //cliente tem interacao com o user
+
+        System.out.println("closing demultiplexer");
 
         /* Close Comunication */
         demultiplexer.close();

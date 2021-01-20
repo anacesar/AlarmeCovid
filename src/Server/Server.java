@@ -29,10 +29,6 @@ public class Server {
         public static void shutdown(){
             boolean shutdown = true;
             System.out.println("Shutting down the server...");
-            System.out.println("Shutting down thread pool...");
-            //threadPool.shutdownPool();
-            //soundCloud.warnClientsAboutShutdown();
-            System.out.println("ThreadPool ok");
             System.out.println("Closing server socket...");
             try{
                 serverSocket.close();

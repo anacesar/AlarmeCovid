@@ -1,13 +1,15 @@
 package Client;
 
 import exceptions.*;
+
+import java.io.IOException;
 import java.util.List;
 
-public class Menu {
+public class ClientController {
     private Demultiplexer demultiplexer;
     private String user;
 
-    public Menu(Demultiplexer demultiplexer) {
+    public ClientController(Demultiplexer demultiplexer) {
         this.demultiplexer = demultiplexer;
         this.user = null;
     }
@@ -40,8 +42,18 @@ public class Menu {
                             System.out.println(e.getMessage());
                         }
                         break;
+                    case "exit" :
+                        try {
+                            demultiplexer.send("exit");
+                        } catch(IOException e) {
+                            e.printStackTrace();
+                        }
                 }
-            }else mainMenu();
+            }else {
+                System.out.println("You are now logged! ");
+                mainMenu();
+            }
+            //UserInterface.waitEnter();
         } while (!input.equals("exit"));
     }
 
@@ -51,55 +63,54 @@ public class Menu {
 
         String input = null;
         List<String> userInput;
+        int node;
         do {
             if(user != null){
                 input = UserInterface.showMainMenu();
-                System.out.println(input);
                 switch (input) {
                     /* update location */
                     case "update":
-                        userInput = UserInterface.showUpdateLocationMenu();
+                        node = UserInterface.showUpdateLocationMenu();
                         try{
-                            demultiplexer.update_location(user, Integer.parseInt(userInput.get(0)));
+                            demultiplexer.update_location(user, node);
                         }catch(InvalidLocationException e){
                             System.out.println(e.getMessage());
                         }
                         break;
                     /* view map */
                     case "view":
-                        userInput = UserInterface.showViewLocationMenu();
+                        node = UserInterface.showViewLocationMenu();
                         try{
-                            demultiplexer.nr_people_location(Integer.parseInt(userInput.get(0)));
+                            int nr = demultiplexer.nr_people_location(node);
+                            System.out.println("There are " + nr + " people in this location!");
 
-                            if(user.equals("0")){
-                                userInput = UserInterface.showViewLocationMenu();
-                            } else{
-                                userInput = UserInterface.showEmptyLocationMenu();
-                                try{
-                                    demultiplexer.notify_empty_location(user,Integer.parseInt(userInput.get(0)));
-                                }catch (InvalidLocationException e){
-                                    System.out.println(e.getMessage());
-                                }
+                            if(UserInterface.showEmptyLocationMenu() == 1){
+                                //demultiplexer.notify_empty_location(user, node);
                             }
-
                         }catch(InvalidLocationException e){
                             System.out.println(e.getMessage());
                         }
                         break;
                     /* report positive */
                     case "positive":
-                        userInput = UserInterface.showReportPositiveMenu();
-                        try{
-                            demultiplexer.notify_positive(user);
-                        }catch(Exception e){
-                            System.out.println(e.getMessage());
+                        if(UserInterface.showReportPositiveMenu() == 1){
+                            try{
+                                demultiplexer.notify_positive(user);
+                            }catch(Exception e){
+                                System.out.println(e.getMessage());
+                            }
                         }
                         break;
                     case "logout":
-                        user = null;
-                        System.out.println("logout pressed");
+                        try {
+                            demultiplexer.send("logout");
+                            user = null;
+                        } catch(IOException e) {
+                            e.printStackTrace();
+                        }
                 }
             }else start();
+            //UserInterface.waitEnter();
         } while (!input.equals("logout"));
 
     }

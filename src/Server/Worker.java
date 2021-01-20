@@ -6,31 +6,31 @@ import Data.Data;
 import exceptions.*;
 
 import java.io.IOException;
-import java.net.SocketException;
 
 public class Worker implements Runnable {
     private Data data;
     private final ClientConnection client;
     private String username;
     private boolean log;
+    private boolean exit;
 
     public Worker(Data data, ClientConnection cc){
         this.data = data;
         this.client = cc;
         this.log = false;
+        this.exit = false;
     }
 
-    @Override
-    //todo its ending server thread when client logs out
-    public void run() {
+    public void before_login() {
         String msg;
         String[] request;
-        try (client) {
-            /* authentication */
-            while( !log ) {
+        /* authentication */
+        while(!log) {
+            try {
                 msg = new String(client.receive());
                 request = msg.split(";");
                 System.out.println(msg);
+
                 switch(request[0]) {
                     case "login":
                         try {
@@ -51,76 +51,89 @@ public class Worker implements Runnable {
                         }
                         break;
                     case "exit":
+                        exit = true;
                         return;
                 }
+            } catch(IOException e) {
+                exit = true;
+                return;
             }
-            data.addToNotification(username, client);
-            client.send("Success with Login");
-
-            //comunicar positivo
-
-            //get num pessoas numa localizacao
-
-            //notificar quando estao 0 pessoas
-
-            //atualizar localizacao
-
-            //get num pessoas doentes numa localizacao (cliente especial)
-
-            while( log ) {
-                try {
-                    msg = new String(client.receive());
-                    request = msg.split(";");
-                } catch(NullPointerException np) {
-                    log = false;
-                    return;
-                }
-                switch(request[0]) {
-                    case "update":
-                        if(!request[0].equals(username)) System.out.println("something is really wrong");
-                        data.update_location(username, Integer.parseInt(request[1]));
-                        //task = new SearchTask(soundcloud, out, request[1], request);
-                        break;
-                    case "view":
-                        try{
-                            int nr = data.nr_people_location(Integer.parseInt(request[1]));
-                            client.send(String.valueOf(nr));
-                        }catch(InvalidLocationException e){ client.send("e;" + e.getMessage());}
-                        break;
-                    case "positive":
-                        //task = new UploadTask(soundcloud, out, client, request, uploadState);
-                        break;
-                    case "download" :
-                        //data.downloadMap();
-                        break;
-                    case "map" : //check for N in matrix
-
-                        break;
-
-                    case "logout": {
-                        log = false;
-                        this.data.sendNotification(this.username, "stop");
-                        this.data.removeNotification(this.username);
-                        break;
-                    }
-                }
-            }
-        } catch(NullPointerException | SocketException n) {
-            log = false;
-        } catch (IOException io){
-        io.printStackTrace();
-
-    } finally {
-        try {
-            if(!log){
-                System.out.println("Shutting down client...");
-                client.close();
-                System.out.println("Client closed.");
-            }
-        }catch (IOException io){
-            io.printStackTrace();
         }
     }
+
+    public void while_logged() throws IOException{
+        String msg;
+        String[] request;
+        while( log ) {
+            System.out.println("log menu");
+            try {
+                msg = new String(client.receive());
+                System.out.println(msg);
+                request = msg.split(";");
+            } catch(NullPointerException np) {
+                log = false;
+                return;
+            }
+            switch(request[0]) {
+                case "update":
+                    //if(!request[0].equals(username)) System.out.println("something is really wrong");
+                    data.update_location(username, Integer.parseInt(request[1]));
+                    //task = new SearchTask(soundcloud, out, request[1], request);
+                    break;
+                case "view":
+                    try{
+                        int nr = data.nr_people_location(Integer.parseInt(request[1]));
+                        System.out.println("nr_people " + Integer.parseInt(request[1]) + " : " + nr);
+                        client.send(String.valueOf(nr));
+                    }catch(InvalidLocationException e){ client.send("e;" + e.getMessage());}
+                    break;
+                case "positive":
+                    //task = new UploadTask(soundcloud, out, client, request, uploadState);
+                    break;
+                case "download" :
+                    //data.downloadMap();
+                    break;
+                case "map" : //check for N in matrix
+                    break;
+                case "logout": {
+                    log = false;
+                    System.out.println("logging out client");
+                    //this.data.sendNotification(this.username, "stop");
+                    this.data.removeNotification(this.username);
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
+    //todo its ending server thread when client logs out
+    public void run() {
+        try{
+            while(!exit) {
+                try {
+                    before_login();
+
+                    if(! exit) {
+                        data.addToNotification(username, client);
+                        client.send("Success with Login");
+
+                        while_logged();
+                    }
+                } catch(IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }finally {
+            try {
+                System.out.println("Shutting down client...");
+                client.send("stop");
+                client.close();
+                System.out.println("Client closed.");
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /*

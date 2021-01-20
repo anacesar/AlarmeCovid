@@ -17,7 +17,7 @@ public class UserInterface {
 
         public void show(){
             System.out.println("--------------------------------------------------------------------");
-            System.out.println("|                          " + this.name + "                          |");
+            System.out.println("|                          " + this.name + "                         |");
             System.out.println("--------------------------------------------------------------------");
             for(String op: this.options){
                 System.out.println(op);
@@ -68,7 +68,8 @@ public class UserInterface {
                 break;
             default:
                 System.out.println("Please select one of the available options");
-                waitEnter();
+                showWelcomeMenu();
+                //waitEnter();
                 res = showWelcomeMenu();
         }
         return res;
@@ -123,53 +124,48 @@ public class UserInterface {
                 break;
             default:
                 System.out.println("Please select one of the available options");
-                waitEnter();
+                //waitEnter();
                 res = showMainMenu();
         }
         return res;
     }
 
 
-    public static List<String> showUpdateLocationMenu(){
-        List<String> answers = new ArrayList<>();
+    public static int showUpdateLocationMenu(){
         System.out.println("Change Location ");
-        answers.add(scanner.nextLine());
-
-        return answers;
+        return scanner.nextInt();
     }
 
 
     //todo check if location is right
-    public static List<String> showViewLocationMenu(){
-        List<String> answers = new ArrayList<>();
-        String location;
+    public static int showViewLocationMenu(){
         System.out.println("Choose Next Location: ");
-        location = scanner.nextLine();
-        answers.add(location);
-
-
-        return answers;
+        return scanner.nextInt();
     }
 
-    public static List<String> showEmptyLocationMenu(){
-        List<String> answers = new ArrayList<>();
+    public static int showEmptyLocationMenu(){
         System.out.println("Would you like to be notified when is empty?");
         System.out.println("1- Yes ");
-        System.out.println("2- No ");
-        answers.add(scanner.nextLine());
-
-        return answers;
+        System.out.println("0- No ");
+        int op = scanner.nextInt();
+        while(op!=1 && op != 0){
+            System.out.println("Please select one available option! ");
+            op = scanner.nextInt();
+        }
+        return op;
     }
 
 
-    public static List<String> showReportPositiveMenu(){
-        List<String> answers = new ArrayList<>();
+    public static int showReportPositiveMenu(){
         System.out.println("Would you like to report positive? ");
         System.out.println("1- Yes ");
-        System.out.println("2- No ");
-        answers.add(scanner.nextLine());
-
-        return answers;
+        System.out.println("0- No ");
+        int op = scanner.nextInt();
+        while(op!=1 && op != 0){
+            System.out.println("Please select one available option! ");
+            op = scanner.nextInt();
+        }
+        return op;
     }
 
 

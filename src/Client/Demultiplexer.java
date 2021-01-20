@@ -27,8 +27,12 @@ public class Demultiplexer implements AlarmCovidInterface {
             String message = "";
             do {
                 try {
+                    /* Message m = conn.receive()*/
+                    /*m.tag == 0 --> notification */
+                    /*m.tag == 1 --> answers */
+                    /*m.tag == 2 --> download map */
                     message = new String(conn.receive());
-                    System.out.println(message);
+                    //System.out.println(message);
                     lock.lock();
                     try{
                         if(message.charAt(0) == ':'){
@@ -44,7 +48,7 @@ public class Demultiplexer implements AlarmCovidInterface {
                     }
 
                 } catch(IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }while(! message.equals("stop") && !message.equals("serverDown"));
         }).start();
@@ -144,6 +148,13 @@ public class Demultiplexer implements AlarmCovidInterface {
     public void download_map() {
 
     }
+
+
+    public void send(String message) throws IOException {
+        this.conn.send(message);
+    }
+
+
 
     public void close() throws IOException {
         this.conn.close();
