@@ -71,33 +71,40 @@ public class Demultiplexer implements AlarmCovidInterface {
         try {
             this.conn.send(line.getBytes());
 
-            line = readNext();
+            line = new String(conn.receive());
             System.out.println(line);
             String[] answers = line.split(";");
             //check da exception
             if(answers[0].equals("e")) throw new AlreadyRegistedException(answers[1]);
-        } catch(IOException | InterruptedException e) {
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void authentication(String username, String password) throws InvalidLoginException {
+    public void authentication(String username, String password) throws InvalidLoginException, QuarantineException {
         String line = "login;" + username + ";" + password;
         try {
             this.conn.send(line.getBytes());
 
-            line = readNext();
+            line = new String(conn.receive());
             String[] answers = line.split(";");
             if(answers[0].equals("e")) throw new InvalidLoginException(answers[1]);
-        } catch(IOException | InterruptedException e) {
+            if(answers[0].equals("q")) throw new QuarantineException(answers[1]);
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public void notify_positive(String username) {
+        String line = "positive;" + username;
+        try {
+            this.conn.send(line.getBytes());
 
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -106,11 +113,11 @@ public class Demultiplexer implements AlarmCovidInterface {
         try {
             this.conn.send(line.getBytes());
 
-            line = readNext();
+            line = new String(conn.receive());
             String[] answers = line.split(";");
             if(answers[0].equals("e")) throw new InvalidLocationException(answers[0]);
 
-        } catch(IOException | InterruptedException e) {
+        } catch(IOException e) {
             e.printStackTrace();
         }
         return Integer.parseInt(line);
@@ -122,24 +129,24 @@ public class Demultiplexer implements AlarmCovidInterface {
         try {
             this.conn.send(line.getBytes());
 
-            line = readNext();
+            line = new String(conn.receive());
             String[] answers = line.split(";");
             if(answers[0].equals("e")) throw new InvalidLocationException(answers[1]);
-        } catch(IOException | InterruptedException e) {
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public void update_location(String username, int new_location) throws InvalidLocationException {
-        String line = "username;" + ";" + "new_location;" + new_location;
+        String line = "username;" + ";" + new_location;
         try {
             this.conn.send(line.getBytes());
 
-            line = readNext();
+            line = new String(conn.receive());
             String[] answers = line.split(";");
             if(answers[0].equals("e")) throw new InvalidLocationException(answers[0]);
-        } catch(IOException | InterruptedException e) {
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }

@@ -3,6 +3,8 @@ package Client;
 import exceptions.*;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.List;
 
 public class ClientController {
@@ -24,14 +26,14 @@ public class ClientController {
                     case "login":
                         userInput = UserInterface.showLoginMenu();
                         try{
-                            //todo verification of special user
+                            //todo verification of special user and check for sick
                             demultiplexer.authentication(userInput.get(0), userInput.get(1));
                             user = userInput.get(0);
                         }catch(InvalidLoginException e){
                             System.out.println(e.getMessage());
-                        }//catch(QuarantineException q){ //trying to login but cant access app
-                        //    System.out.println("You are still in quarantine! Please stay at home.."); input = "exit";
-                        //}
+                        }catch(QuarantineException q){ //trying to login but cant access app
+                            System.out.println("You are still in quarantine! Please stay at home.."); input = "exit";
+                        }
                         break;
                     case "register":
                         userInput = UserInterface.showRegisterMenu();
@@ -51,22 +53,26 @@ public class ClientController {
                 }
             }else {
                 System.out.println("You are now logged! ");
-                mainMenu();
+                try {
+                    mainMenu();
+                } catch(IOException e) {
+                    e.printStackTrace();
+                }
             }
             //UserInterface.waitEnter();
         } while (!input.equals("exit"));
     }
 
-    public void mainMenu(){
-        //fazer get do mapa e devolver interacao
-        /*atualizar localizacao , consultar mapa , reportar positivo*/
+    public void mainMenu() throws IOException {
+        /* user logged creates new thread to deal with notifier to get notifications */
+        Thread notifications = new Thread(new Notifier(user));
+        notifications.start();
 
         String input = null;
-        List<String> userInput;
         int node;
         do {
             if(user != null){
-                input = UserInterface.showMainMenu();
+                if(input == null || ! input.equals("logout")) input = UserInterface.showMainMenu();
                 switch (input) {
                     /* update location */
                     case "update":
@@ -96,6 +102,8 @@ public class ClientController {
                         if(UserInterface.showReportPositiveMenu() == 1){
                             try{
                                 demultiplexer.notify_positive(user);
+                                input = "logout";
+                                System.out.println("Please stay at home for 14 days! ");
                             }catch(Exception e){
                                 System.out.println(e.getMessage());
                             }
@@ -104,22 +112,17 @@ public class ClientController {
                     case "logout":
                         try {
                             demultiplexer.send("logout");
+                            notifications.join();
                             user = null;
-                        } catch(IOException e) {
+                        } catch(InterruptedException e) {
                             e.printStackTrace();
                         }
                 }
             }else start();
             //UserInterface.waitEnter();
-        } while (!input.equals("logout"));
+        } while (!input.equals("exit"));
 
     }
-
-
-    /* client menu */
-
-   // deml . send ("consulta", nodo);
-
 
 }
 

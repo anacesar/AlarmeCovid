@@ -1,6 +1,7 @@
 package Server;
 
 import Client.ClientConnection;
+import Client.ClientConnection.Message;
 
 import Data.Data;
 import exceptions.*;
@@ -37,8 +38,10 @@ public class Worker implements Runnable {
                             data.authentication(request[1], request[2]);
                             this.username = request[1];
                             log = true;
-                        } catch(InvalidLoginException l) {
-                            client.send("e;" + l.getMessage());
+                        } catch(InvalidLoginException e) {
+                            client.send("e;" + e.getMessage());
+                        }catch(QuarantineException q){
+                            client.send("q;" + q.getMessage());
                         }
                         break;
                     case "register":
@@ -49,6 +52,11 @@ public class Worker implements Runnable {
                         } catch(AlreadyRegistedException | SpecialPasswordInvalidException e) {
                             client.send("e;" + e.getMessage());
                         }
+                        break;
+                    case "not" :
+                        data.addToNotification(request[1], client);
+                        data.sendNotification(request[1]);
+                        username = request[1];
                         break;
                     case "exit":
                         exit = true;
@@ -65,10 +73,9 @@ public class Worker implements Runnable {
         String msg;
         String[] request;
         while( log ) {
-            System.out.println("log menu");
             try {
                 msg = new String(client.receive());
-                System.out.println(msg);
+                System.out.println("USERNAME: " + username + " --> " + msg);
                 request = msg.split(";");
             } catch(NullPointerException np) {
                 log = false;
@@ -76,29 +83,29 @@ public class Worker implements Runnable {
             }
             switch(request[0]) {
                 case "update":
-                    //if(!request[0].equals(username)) System.out.println("something is really wrong");
-                    data.update_location(username, Integer.parseInt(request[1]));
-                    //task = new SearchTask(soundcloud, out, request[1], request);
-                    break;
+                        //if(!request[0].equals(username)) System.out.println("something is really wrong");
+                        data.update_location(username, Integer.parseInt(request[1]));
+                        break;
                 case "view":
                     try{
                         int nr = data.nr_people_location(Integer.parseInt(request[1]));
-                        System.out.println("nr_people " + Integer.parseInt(request[1]) + " : " + nr);
                         client.send(String.valueOf(nr));
                     }catch(InvalidLocationException e){ client.send("e;" + e.getMessage());}
                     break;
                 case "positive":
-                    //task = new UploadTask(soundcloud, out, client, request, uploadState);
-                    break;
+                        data.notify_positive(request[1]);
+                        exit = true;
+                        break;
+                    /*
                 case "download" :
                     //data.downloadMap();
                     break;
                 case "map" : //check for N in matrix
                     break;
+                     */
                 case "logout": {
                     log = false;
-                    System.out.println("logging out client");
-                    //this.data.sendNotification(this.username, "stop");
+                    this.data.sendNotification(this.username, new Message(4, "exit".getBytes()));
                     this.data.removeNotification(this.username);
                     break;
                 }
@@ -107,7 +114,6 @@ public class Worker implements Runnable {
     }
 
     @Override
-    //todo its ending server thread when client logs out
     public void run() {
         try{
             while(!exit) {
@@ -115,9 +121,7 @@ public class Worker implements Runnable {
                     before_login();
 
                     if(! exit) {
-                        data.addToNotification(username, client);
                         client.send("Success with Login");
-
                         while_logged();
                     }
                 } catch(IOException e) {
@@ -126,10 +130,9 @@ public class Worker implements Runnable {
             }
         }finally {
             try {
-                System.out.println("Shutting down client...");
-                client.send("stop");
+                System.out.println("Shutting down socket for client " + username);
                 client.close();
-                System.out.println("Client closed.");
+                System.out.println("Socket closed.");
             } catch(IOException e) {
                 e.printStackTrace();
             }

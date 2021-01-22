@@ -26,9 +26,9 @@ public class User {
         this.lock = new ReentrantLock();
     }
 
-    public User(String username, String password, Boolean special, int location, List<String> riskContact) {
+    public User(String username, String password, Boolean special, LocalDate sick, int location, List<String> riskContact) {
         this.special_user = special;
-        this.sick = null;
+        this.sick = sick;
         this.username = username;
         this.password = password;
         this.localizacao = location;

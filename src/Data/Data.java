@@ -1,6 +1,7 @@
 package Data;
 
 import Client.ClientConnection;
+import Client.ClientConnection.Message;
 import Data.myMap.Location;
 import exceptions.*;
 
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -21,7 +23,7 @@ public class Data implements AlarmCovidInterface{
     /* logged users and connection associated */
     private HashMap<String, ClientConnection> notification; //cc associada ao socket de notificacoes
     /* notifications for users waiting to log in */
-    private Map<String, List<String>> users_logged;
+    private Map<String, List<Message>> users_not_logged;
 
     private Lock users_lock = new ReentrantLock();
     private Lock map_lock = new ReentrantLock();
@@ -37,8 +39,9 @@ public class Data implements AlarmCovidInterface{
         String s = currentRelativePath.toAbsolutePath().toString();
         users = new HashMap<>();
         notification = new HashMap<>();
-        users_logged = new HashMap<>();
-
+        users_not_logged = new HashMap<>();
+        users_not_logged.put("user3", new ArrayList<>());
+        users_not_logged.get("user3").add(new Message(0, "user4".getBytes()));
         /* load files information */
         USER_PATH  = s + "/src/DataBase/users.csv";
         MAP_PATH = s + "/src/DataBase/map.csv";
@@ -61,7 +64,9 @@ public class Data implements AlarmCovidInterface{
 
                 riskContact = new ArrayList<>(Arrays.asList(userLine[4].split(",")));
 
-                user = new User(userLine[0], userLine[1], Boolean.parseBoolean(userLine[2]), Integer.parseInt(userLine[3]), riskContact);
+                LocalDate time = userLine[3].equals("0") ? null : LocalDate.parse(userLine[3]);
+
+                user = new User(userLine[0], userLine[1], Boolean.parseBoolean(userLine[2]), time, Integer.parseInt(userLine[4]), riskContact);
                 users.put(user.getUsername(), user);
             }
 
@@ -111,11 +116,17 @@ public class Data implements AlarmCovidInterface{
 
     @Override
     // falta ver se tem notificacoes, ver se esta doente
-    public void authentication(String username, String password) throws InvalidLoginException {
+    public void authentication(String username, String password) throws InvalidLoginException, QuarantineException{
         try{
             users_lock.lock();
-            if( !users.containsKey(username) || !users.get(username).getPassword().equals(password) )
-                throw new InvalidLoginException("Invalid Login");
+            User user = users.get(username);
+            if(user == null || !user.getPassword().equals(password)) throw new InvalidLoginException("Invalid Login");
+            if(user.isSick() != null){
+                System.out.println("is sick");
+                if (Period.between(user.isSick(), LocalDate.now()).getDays() < 14) throw new QuarantineException();
+                else user.isSick(null);
+            }
+            System.out.println("is not sick");
         }finally {
             users_lock.unlock();
         }
@@ -124,32 +135,27 @@ public class Data implements AlarmCovidInterface{
     @Override
     /* when a user notify he has tested positive */
     public void notify_positive(String username) {
-        try {
             users_lock.lock();
             User user = users.get(username);
             user.lock();
             users_lock.unlock();
-            String message = ": Risk Contact Detected! Please pay attention for the next days!";
             user.isSick(LocalDate.now()); //set sick to this moment
+            Message m = new Message(0, username.getBytes());
             user.getRiskContact().forEach(risk -> {
                 if(notification.containsKey(risk)) { //user is logged
-                    try {
-                        /* notificator*/
-                        sendNotification(risk, message);
+                    try {/* notificator*/
+                        sendNotification(risk, m);
                     } catch(IOException e) {
                         e.printStackTrace();
                     }
                 }else{ //save notification for later log in
-                    if(users_logged.containsKey(risk)){
-                       users_logged.put(risk, new ArrayList<>());
+                    if(! users_not_logged.containsKey(risk)){
+                        users_not_logged.put(risk, new ArrayList<>());
                     }
+                    users_not_logged.get(risk).add(m);
                 }
             });
-            //notificar todos os risk contact
-
-        }finally {
-            users_lock.unlock();
-        }
+            user.unlock();
     }
 
     @Override
@@ -230,6 +236,7 @@ public class Data implements AlarmCovidInterface{
     public void addToNotification(String username , ClientConnection cc) {
         notification_lock.lock();
         this.notification.put(username, cc);
+        System.out.println(username + "added to notification ");
         //if(users_logged.containsKey(username)) users_logged.get(username).forEach(notification -> cc.send(notification));
         notification_lock.unlock();
     }
@@ -247,6 +254,28 @@ public class Data implements AlarmCovidInterface{
         notification_lock.lock();
         this.notification.get(username).send(message);
         notification_lock.unlock();
+    }
+
+    /* Send notification in Message format to username */
+    public void sendNotification(String username , Message message) throws IOException {
+        notification_lock.lock();
+        System.out.println("sending message to " + username + " : " + message.toString());
+        this.notification.get(username).send(message);
+        notification_lock.unlock();
+    }
+
+    /* Save users connection in notification map*/
+    public void sendNotification(String username){
+        if(users_not_logged.containsKey(username)){
+            users_not_logged.get(username).forEach(not -> {
+                try {
+                    sendNotification(username, not);
+                } catch(IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            users_not_logged.remove(username);
+        }
     }
 
     /* Warns clients about shutdown */

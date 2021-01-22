@@ -2,6 +2,8 @@ package Client;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.SimpleTimeZone;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ClientConnection implements AutoCloseable {
@@ -11,10 +13,49 @@ public class ClientConnection implements AutoCloseable {
     private ReentrantLock wlock = new ReentrantLock();
     private ReentrantLock rlock = new ReentrantLock();
 
+    private final int MAXSIZE = 8192; //maxsize for map download
+
     public ClientConnection(Socket socket) throws IOException {
         this.socket = socket;
         this.out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
         this.in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+    }
+
+
+    public static class Message{
+        int tag; //0 --> sick notification |  1 --> place notification | 2 --> download map
+        byte[] data;
+
+        public Message(int tag, byte[] data) {
+            this.tag = tag;
+            this.data = data;
+        }
+
+        public void serialize(DataOutputStream out) throws IOException {
+            out.writeInt(tag);
+            //if(tag != 2){
+                out.writeInt(data.length);
+                out.write(data);
+            //}
+
+        }
+
+        public static Message deserialize(DataInputStream in) throws IOException {
+            int tag = in.readInt();
+            byte[] data = new byte[in.readInt()];
+            in.readFully(data);
+
+            return new Message(tag, data);
+        }
+
+
+        @Override
+        public String toString() {
+            return "Message{" +
+                    "tag=" + tag +
+                    ", data=" + Arrays.toString(data) +
+                    '}';
+        }
     }
 
     public void send(byte[] data) throws IOException {
@@ -40,6 +81,16 @@ public class ClientConnection implements AutoCloseable {
         }
     }
 
+    public void send(Message message) throws IOException{
+        try {
+            wlock.lock();
+            message.serialize(out);
+            out.flush();
+        }finally {
+            wlock.unlock();
+        }
+    }
+
     public byte[] receive() throws IOException {
         byte[] data;
         try {
@@ -51,6 +102,16 @@ public class ClientConnection implements AutoCloseable {
             rlock.unlock();
         }
         return data;
+    }
+
+    public Message receiveMessage() throws IOException {
+        try {
+            rlock.lock();
+            Message m = Message.deserialize(in);
+            return m;
+        }finally {
+            rlock.unlock();
+        }
     }
 
     public void close() throws IOException {
