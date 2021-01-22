@@ -14,13 +14,12 @@ conexao demultiplexer --> menu
 
 --servidor precisa notificar cliente--
 esta logado ?? envias notifi pelo clientConn
-se nao guardas no data notifi associadas ao user
+se nao guardas no alarmeCovid notifi associadas ao user
 
 --servidor faz um login--
 se esta doente
 verifica se ut tem notificacoes para receber ? se tem, manda pelo conn
 se nao continua
-
 
 
 perguntar ao neves :
@@ -36,35 +35,8 @@ do servidor a escrever em mais do que um socket, devendo as escritas serem feita
 socket --> comunicao com cliente
 socket --> notificacoes e download de mapa (user especial){
 
-}
+fodido quando not positivo --> servidor morre --> continua a tentar ler coisas do while logged
 
- public void download_map() {
-
-     File file = new File("/Users/angelicacunha/Desktop/sample.txt");
-
-     map_lock.lock();
-
-     // Write the content in file
-     try(FileWriter fileWriter = new FileWriter(file)) {
-         String fileContent=null;
-         int N=map.getN();
-         String[] headers = { "Localização", "NPessoas"};
-         Object[][] data = new Object[N*N][2];
-         data[0][0]= "Casa";
-         data[0][1]= "0";
-         for(int i=1; i<N*N;i++){
-             data[i][0] = map.getAdress(i);
-             data[i][1] = String.valueOf(map.nr_people(i));
-         }
-         String table = FlipTableConverters.fromObjects(headers,data);
-         fileContent=table;
-
-         System.out.println(fileContent);
-
-         fileWriter.write(fileContent);
-     } catch (IOException e) {
-         e.printStackTrace();
-     } finally {
-         map_lock.unlock();
-     }
- }
+empty place :
+threads bloqueadas com condicoes para cada nodo???
+uma thread

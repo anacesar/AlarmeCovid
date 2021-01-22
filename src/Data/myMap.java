@@ -2,6 +2,7 @@ package Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,7 +17,7 @@ public class myMap {
         map[0][0] = new Location(); //users home -> node 0
     }
 
-    static class Location {
+    public static class Location {
         private String address;
         private List<String> currentUsers; //list of current users in this location
         private List<String> history; //list of users visited this location
@@ -34,15 +35,18 @@ public class myMap {
             this.history = new ArrayList<>(history);
         }
 
-        public int entry(String username){
+        public void entry(String username){
             currentUsers.add(username);
             if(! history.contains(username)) history.add(username);
-            return currentUsers.size();
         }
 
         public void exit(String username){
+            System.out.println(username + " exited " + address );
             currentUsers.remove(username);
-            if(currentUsers.isEmpty()) isEmpty.signalAll();
+            if(currentUsers.isEmpty()){
+                System.out.println("place empty, signal all....");
+                isEmpty.signalAll();
+            }
         }
 
         public List<String> getCurrentUsers(){
@@ -54,22 +58,22 @@ public class myMap {
             }
         }
 
-        public String getAdress(){ return this.address; }
-
-        public void waitEmpty(String username) throws InterruptedException {
+        public List<String> getHistory(){
             location_lock.lock();
             try{
-                /* waits for place to be empty*/
-                while(! currentUsers.isEmpty()) isEmpty.wait();
-                //notification place is empty
+                return history;
             }finally {
                 location_lock.unlock();
             }
         }
 
+        public String getAdress(){ return this.address; }
+
         public void lock(){ this.location_lock.lock();}
 
         public void unlock(){ this.location_lock.unlock();}
+
+        public void await() throws InterruptedException { this.isEmpty.await();}
 
         @Override
         public String toString() {
@@ -79,6 +83,7 @@ public class myMap {
                     ", history=" + history +
                     '}';
         }
+
     }
 
     public Location getLocation(int node){

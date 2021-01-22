@@ -93,7 +93,7 @@ public class ClientController {
                             System.out.println("There are " + nr + " people in this location!");
 
                             if(UserInterface.showEmptyLocationMenu() == 1){
-                                //demultiplexer.notify_empty_location(user, node);
+                                demultiplexer.notify_empty_location(user, node);
                             }
                         }catch(InvalidLocationException e){
                             System.out.println(e.getMessage());

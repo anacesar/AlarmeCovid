@@ -1,25 +1,23 @@
 package Server;
 
 import Client.ClientConnection;
-import Data.Data;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.time.LocalDate;
 
 
 public class Server {
     private static ServerSocket serverSocket;
     private static ServerSocket m_serverSocket;
-    private static Data data;
+    private static AlarmeCovid alarmeCovid;
     private static volatile boolean shutdown = false;
 
     public static void main(String[] args) {
 
         try {
             System.out.println("Initializing server...");
-            data = new Data();
+            alarmeCovid = new AlarmeCovid();
 
             new Thread(() -> { //thread to accept serversocket communications with users
                 try {
@@ -29,7 +27,7 @@ public class Server {
                         Socket clientSocket = serverSocket.accept();
                         ClientConnection clientConnection = new ClientConnection(clientSocket);
 
-                        new Thread(new Worker(data, clientConnection)).start();
+                        new Thread(new Worker(alarmeCovid, clientConnection)).start();
                     }
                 } catch(IOException e) { e.printStackTrace();}
             }).start();
@@ -43,11 +41,14 @@ public class Server {
                         Socket clientSocket = m_serverSocket.accept();
                         ClientConnection clientConnection = new ClientConnection(clientSocket);
 
-                        new Thread(new Worker(data, clientConnection)).start();
+                        new Thread(new Worker(alarmeCovid, clientConnection)).start();
                     }
                 } catch(IOException e) { e.printStackTrace();}
             }).start();
         }catch(Exception e){ e.printStackTrace();}
+
+
+        new Thread(new mapWorker(alarmeCovid)).start();
 
     }
 

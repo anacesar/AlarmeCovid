@@ -3,20 +3,19 @@ package Server;
 import Client.ClientConnection;
 import Client.ClientConnection.Message;
 
-import Data.Data;
 import exceptions.*;
 
 import java.io.IOException;
 
 public class Worker implements Runnable {
-    private Data data;
+    private AlarmeCovid alarmeCovid;
     private final ClientConnection client;
     private String username;
     private boolean log;
     private boolean exit;
 
-    public Worker(Data data, ClientConnection cc){
-        this.data = data;
+    public Worker(AlarmeCovid alarmeCovid, ClientConnection cc){
+        this.alarmeCovid = alarmeCovid;
         this.client = cc;
         this.log = false;
         this.exit = false;
@@ -35,7 +34,7 @@ public class Worker implements Runnable {
                 switch(request[0]) {
                     case "login":
                         try {
-                            client.send(String.valueOf(data.authentication(request[1], request[2])));
+                            client.send(String.valueOf(alarmeCovid.authentication(request[1], request[2])));
                             this.username = request[1];
                             log = true;
                         } catch(InvalidLoginException e) {
@@ -46,7 +45,7 @@ public class Worker implements Runnable {
                         break;
                     case "register":
                         try {
-                            data.registration(request[1], request[2], request[3]);
+                            alarmeCovid.registration(request[1], request[2], request[3]);
                             client.send("Success");
                             this.username = request[1];
                             log = true;
@@ -55,8 +54,8 @@ public class Worker implements Runnable {
                         }
                         break;
                     case "not" :
-                        data.addToNotification(request[1], client);
-                        data.sendNotification(request[1]);
+                        alarmeCovid.addToNotification(request[1], client);
+                        alarmeCovid.sendNotification(request[1]);
                         username = request[1];
                         break;
                     case "exit":
@@ -84,27 +83,31 @@ public class Worker implements Runnable {
             }
             switch(request[0]) {
                 case "update":
-                        //if(!request[0].equals(username)) System.out.println("something is really wrong");
-                        data.update_location(username, Integer.parseInt(request[1]));
-                        break;
+                    //if(!request[0].equals(username)) System.out.println("something is really wrong");
+                    alarmeCovid.update_location(username, Integer.parseInt(request[1]));
+                    client.send("Success");
+                    break;
                 case "view":
                     try{
-                        int nr = data.nr_people_location(Integer.parseInt(request[1]));
+                        int nr = alarmeCovid.nr_people_location(Integer.parseInt(request[1]));
                         client.send(String.valueOf(nr));
                     }catch(InvalidLocationException e){ client.send("e;" + e.getMessage());}
                     break;
+                case "notify" :
+                    alarmeCovid.notify_empty_location(username, Integer.parseInt(request[2]));
+                    break;
                 case "positive":
-                        data.notify_positive(request[1]);
-                        break;
+                    alarmeCovid.notify_positive(request[1]);
+                    break;
                 case "download" :
-                    data.download_map(request[1]);
+                    alarmeCovid.download_map(request[1]);
                     break;
                 case "map" : //check for N in matrix
                     break;
                 case "logout":
                     log = false;
-                    this.data.sendNotification(this.username, new Message(4, "exit".getBytes()));
-                    this.data.removeNotification(this.username);
+                    this.alarmeCovid.sendNotification(this.username, new Message(4, "exit".getBytes()));
+                    this.alarmeCovid.removeNotification(this.username);
                     break;
                 case "exit":
                     exit = true;

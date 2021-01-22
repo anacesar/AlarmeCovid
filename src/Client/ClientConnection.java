@@ -32,10 +32,8 @@ public class ClientConnection implements AutoCloseable {
 
         public void serialize(DataOutputStream out) throws IOException {
             out.writeInt(tag);
-            //if(tag != 2){
-                out.writeInt(data.length);
-                out.write(data);
-            //}
+            out.writeInt(data.length);
+            out.write(data);
 
         }
 
@@ -43,7 +41,6 @@ public class ClientConnection implements AutoCloseable {
             int tag = in.readInt();
             byte[] data = new byte[in.readInt()];
             in.readFully(data);
-
             return new Message(tag, data);
         }
 

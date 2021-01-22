@@ -78,7 +78,7 @@ public class User {
     }
 
     public List<String> getRiskContact(){
-        return this.riskContact;
+        return new ArrayList<>(riskContact);
     }
 
     public void addRiskContact(List<String> contacts){
