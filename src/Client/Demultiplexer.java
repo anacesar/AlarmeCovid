@@ -82,7 +82,7 @@ public class Demultiplexer implements AlarmCovidInterface {
     }
 
     @Override
-    public void authentication(String username, String password) throws InvalidLoginException, QuarantineException {
+    public boolean authentication(String username, String password) throws InvalidLoginException, QuarantineException {
         String line = "login;" + username + ";" + password;
         try {
             this.conn.send(line.getBytes());
@@ -94,6 +94,7 @@ public class Demultiplexer implements AlarmCovidInterface {
         } catch(IOException e) {
             e.printStackTrace();
         }
+        return Boolean.parseBoolean(line);
     }
 
     @Override
@@ -139,7 +140,7 @@ public class Demultiplexer implements AlarmCovidInterface {
 
     @Override
     public void update_location(String username, int new_location) throws InvalidLocationException {
-        String line = "username;" + ";" + new_location;
+        String line = "username;" + new_location;
         try {
             this.conn.send(line.getBytes());
 
@@ -152,8 +153,13 @@ public class Demultiplexer implements AlarmCovidInterface {
     }
 
     @Override
-    public void download_map() {
-
+    public void download_map(String username) {
+        String line = "download;" + username;
+        try {
+            this.conn.send(line.getBytes());
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

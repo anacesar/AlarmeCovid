@@ -47,6 +47,10 @@ public class UserInterface {
         scanner.nextLine();
     }
 
+    public static void flush(){
+        scanner.nextLine();
+    }
+
     public static String showWelcomeMenu() {
         List<String> options = new ArrayList<>();
         options.add("1 - Login");
@@ -99,12 +103,13 @@ public class UserInterface {
         return answers;
     }
 
-    public static String showMainMenu() {
+    public static String showMainMenu(boolean special) {
         List<String> options = new ArrayList<>();
         options.add("1 - Update Location");
-        options.add("2 - Choose Location");
+        options.add("2 - Number of people in a location");
         options.add("3 - Report Positive Case");
-        options.add("4 - Logout");
+        if(special) options.add("4 - Download map");
+        options.add("0 - Logout");
         Menu showMainMenu = new Menu(options, "Main Menu  ");
         showMainMenu.show();
         String selectedOption = scanner.nextLine();
@@ -119,13 +124,16 @@ public class UserInterface {
             case "3":
                 res = "positive";
                 break;
-            case "4":
+            case "4" :
+                res = "download";
+                break;
+            case "0":
                 res = "logout";
                 break;
             default:
-                System.out.println("Please select one of the available options");
+                System.out.println("Please select one of the available options: ");
                 //waitEnter();
-                res = showMainMenu();
+                res = showMainMenu(special);
         }
         return res;
     }
@@ -133,14 +141,19 @@ public class UserInterface {
 
     public static int showUpdateLocationMenu(){
         System.out.println("Change Location ");
-        return scanner.nextInt();
+        int op = scanner.nextInt();
+        flush();
+        return op;
+
     }
 
 
     //todo check if location is right
     public static int showViewLocationMenu(){
         System.out.println("Choose Next Location: ");
-        return scanner.nextInt();
+        int loc = scanner.nextInt();
+        flush();
+        return loc;
     }
 
     public static int showEmptyLocationMenu(){
@@ -148,9 +161,11 @@ public class UserInterface {
         System.out.println("1- Yes ");
         System.out.println("0- No ");
         int op = scanner.nextInt();
+        flush();
         while(op!=1 && op != 0){
             System.out.println("Please select one available option! ");
             op = scanner.nextInt();
+            flush();
         }
         return op;
     }
@@ -160,10 +175,10 @@ public class UserInterface {
         System.out.println("Would you like to report positive? ");
         System.out.println("1- Yes ");
         System.out.println("0- No ");
-        int op = scanner.nextInt();
+        int op = Integer.parseInt(scanner.nextLine());
         while(op!=1 && op != 0){
             System.out.println("Please select one available option! ");
-            op = scanner.nextInt();
+            op = Integer.parseInt(scanner.nextLine());
         }
         return op;
     }

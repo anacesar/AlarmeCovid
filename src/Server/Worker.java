@@ -35,7 +35,7 @@ public class Worker implements Runnable {
                 switch(request[0]) {
                     case "login":
                         try {
-                            data.authentication(request[1], request[2]);
+                            client.send(String.valueOf(data.authentication(request[1], request[2])));
                             this.username = request[1];
                             log = true;
                         } catch(InvalidLoginException e) {
@@ -47,6 +47,7 @@ public class Worker implements Runnable {
                     case "register":
                         try {
                             data.registration(request[1], request[2], request[3]);
+                            client.send("Success");
                             this.username = request[1];
                             log = true;
                         } catch(AlreadyRegistedException | SpecialPasswordInvalidException e) {
@@ -94,21 +95,20 @@ public class Worker implements Runnable {
                     break;
                 case "positive":
                         data.notify_positive(request[1]);
-                        exit = true;
                         break;
-                    /*
                 case "download" :
-                    //data.downloadMap();
+                    data.download_map(request[1]);
                     break;
                 case "map" : //check for N in matrix
                     break;
-                     */
-                case "logout": {
+                case "logout":
                     log = false;
                     this.data.sendNotification(this.username, new Message(4, "exit".getBytes()));
                     this.data.removeNotification(this.username);
                     break;
-                }
+                case "exit":
+                    exit = true;
+                    return;
             }
         }
     }
@@ -119,11 +119,7 @@ public class Worker implements Runnable {
             while(!exit) {
                 try {
                     before_login();
-
-                    if(! exit) {
-                        client.send("Success with Login");
-                        while_logged();
-                    }
+                    if(! exit) while_logged();
                 } catch(IOException e) {
                     e.printStackTrace();
                 }

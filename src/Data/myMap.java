@@ -54,6 +54,8 @@ public class myMap {
             }
         }
 
+        public String getAdress(){ return this.address; }
+
         public void waitEmpty(String username) throws InterruptedException {
             location_lock.lock();
             try{

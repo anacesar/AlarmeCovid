@@ -2,18 +2,20 @@ package Client;
 
 import exceptions.*;
 
+import javax.swing.text.StyledEditorKit;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.text.RuleBasedCollator;
 import java.util.List;
 
 public class ClientController {
     private Demultiplexer demultiplexer;
     private String user;
+    private boolean special;
 
     public ClientController(Demultiplexer demultiplexer) {
         this.demultiplexer = demultiplexer;
         this.user = null;
+        this.special = false;
     }
 
     public void start() {
@@ -26,8 +28,7 @@ public class ClientController {
                     case "login":
                         userInput = UserInterface.showLoginMenu();
                         try{
-                            //todo verification of special user and check for sick
-                            demultiplexer.authentication(userInput.get(0), userInput.get(1));
+                            special = demultiplexer.authentication(userInput.get(0), userInput.get(1));
                             user = userInput.get(0);
                         }catch(InvalidLoginException e){
                             System.out.println(e.getMessage());
@@ -72,7 +73,8 @@ public class ClientController {
         int node;
         do {
             if(user != null){
-                if(input == null || ! input.equals("logout")) input = UserInterface.showMainMenu();
+                if(input == null || ! input.equals("logout")) input = UserInterface.showMainMenu(special);
+
                 switch (input) {
                     /* update location */
                     case "update":
@@ -109,6 +111,11 @@ public class ClientController {
                             }
                         }
                         break;
+                    /* special users download map*/
+                    case "download" :
+                        demultiplexer.download_map(user);
+                        break;
+                    /* logout */
                     case "logout":
                         try {
                             demultiplexer.send("logout");
@@ -117,6 +124,7 @@ public class ClientController {
                         } catch(InterruptedException e) {
                             e.printStackTrace();
                         }
+                        break;
                 }
             }else start();
             //UserInterface.waitEnter();

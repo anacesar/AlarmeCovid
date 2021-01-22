@@ -3,11 +3,10 @@ package Data;
 import Client.ClientConnection;
 import Client.ClientConnection.Message;
 import Data.myMap.Location;
+import com.jakewharton.fliptables.FlipTableConverters;
 import exceptions.*;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -23,7 +22,7 @@ public class Data implements AlarmCovidInterface{
     /* logged users and connection associated */
     private HashMap<String, ClientConnection> notification; //cc associada ao socket de notificacoes
     /* notifications for users waiting to log in */
-    private Map<String, List<Message>> users_not_logged;
+    private Map<String, List<Message>> users_not_logged; //todo passar para csv
 
     private Lock users_lock = new ReentrantLock();
     private Lock map_lock = new ReentrantLock();
@@ -116,7 +115,7 @@ public class Data implements AlarmCovidInterface{
 
     @Override
     // falta ver se tem notificacoes, ver se esta doente
-    public void authentication(String username, String password) throws InvalidLoginException, QuarantineException{
+    public boolean authentication(String username, String password) throws InvalidLoginException, QuarantineException{
         try{
             users_lock.lock();
             User user = users.get(username);
@@ -126,7 +125,7 @@ public class Data implements AlarmCovidInterface{
                 if (Period.between(user.isSick(), LocalDate.now()).getDays() < 14) throw new QuarantineException();
                 else user.isSick(null);
             }
-            System.out.println("is not sick");
+            return user.isSpecial_user();
         }finally {
             users_lock.unlock();
         }
@@ -227,8 +226,34 @@ public class Data implements AlarmCovidInterface{
 
 
     @Override
-    public void download_map() {
+    public void download_map(String username) {
 
+        File file = new File("/Users/anacesar/Desktop/" + username + ".txt");
+
+        map_lock.lock();
+
+        // Write the content in file
+        try(FileWriter fileWriter = new FileWriter(file)) {
+            String fileContent=null;
+            String[] headers = { "Localização", "NPessoas"};
+            Object[][] data = new Object[N*N][2];
+            data[0][0]= "Casa";
+            data[0][1]= "0";
+            for(int i=1; i<N*N;i++){
+                data[i][0] = map.getLocation(i).getAdress();
+                data[i][1] = String.valueOf(map.nr_people(i));
+            }
+            String table = FlipTableConverters.fromObjects(headers,data);
+            fileContent=table;
+
+            System.out.println(fileContent);
+
+            fileWriter.write(fileContent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            map_lock.unlock();
+        }
     }
 
 

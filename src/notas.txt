@@ -37,3 +37,34 @@ socket --> comunicao com cliente
 socket --> notificacoes e download de mapa (user especial){
 
 }
+
+ public void download_map() {
+
+     File file = new File("/Users/angelicacunha/Desktop/sample.txt");
+
+     map_lock.lock();
+
+     // Write the content in file
+     try(FileWriter fileWriter = new FileWriter(file)) {
+         String fileContent=null;
+         int N=map.getN();
+         String[] headers = { "Localização", "NPessoas"};
+         Object[][] data = new Object[N*N][2];
+         data[0][0]= "Casa";
+         data[0][1]= "0";
+         for(int i=1; i<N*N;i++){
+             data[i][0] = map.getAdress(i);
+             data[i][1] = String.valueOf(map.nr_people(i));
+         }
+         String table = FlipTableConverters.fromObjects(headers,data);
+         fileContent=table;
+
+         System.out.println(fileContent);
+
+         fileWriter.write(fileContent);
+     } catch (IOException e) {
+         e.printStackTrace();
+     } finally {
+         map_lock.unlock();
+     }
+ }
