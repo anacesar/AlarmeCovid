@@ -175,9 +175,9 @@ public class AlarmeCovid implements AlarmCovidInterface {
         try{
             users_lock.lock();
             User user = users.get(username);
+            if(notification.containsKey(username)) throw new InvalidLoginException("You are already logged!");
             if(user == null || !user.getPassword().equals(password)) throw new InvalidLoginException("Invalid Login");
             if(user.isSick() != null){
-                System.out.println("is sick");
                 if (Period.between(user.isSick(), LocalDate.now()).getDays() < 14) throw new QuarantineException();
                 else user.isSick(null);
             }
@@ -239,8 +239,6 @@ public class AlarmeCovid implements AlarmCovidInterface {
                 List<String> users = new ArrayList<>();
                 users.add(username);
                 users_not_empty.put(node, users);
-                System.out.println(node + " added to user_noti_empty");
-                users.forEach(System.out::println);
             } else users_not_empty.get(node).add(username);
         }finally {
             empty_lock.unlock();
@@ -260,7 +258,7 @@ public class AlarmeCovid implements AlarmCovidInterface {
 
             int old_location = u.getLocalizacao();
             u.setLocalizacao(new_location);
-            System.out.println("updated user location");
+            System.out.println("updated user location from " + old_location + " to " + new_location );
             u.unlock();
 
             map_lock.lock();
@@ -381,7 +379,6 @@ public class AlarmeCovid implements AlarmCovidInterface {
                 }
             } else { //save notification for later log in
                 //System.out.println("user is not logged ");
-
                 if(!users_not_logged.containsKey(username)) {
                     users_not_logged.put(username, new ArrayList<>());
                 }

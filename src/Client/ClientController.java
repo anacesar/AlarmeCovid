@@ -19,6 +19,7 @@ public class ClientController {
     public void start() {
         String input = null;
         List<String> userInput;
+        assert input != null;
         do {
             if(user == null){
                 input = UserInterface.showWelcomeMenu();

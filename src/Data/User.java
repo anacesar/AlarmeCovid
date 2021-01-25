@@ -36,18 +36,7 @@ public class User {
         this.lock = new ReentrantLock();
     }
 
-    public User(User u) {
-        this.sick = u.isSick();
-        this.username = u.getUsername();
-        this.password = u.getPassword();
-        this.localizacao = u.getLocalizacao();
-        this.riskContact = u.getRiskContact();
-
-    }
-
     public boolean isSpecial_user(){ return special_user;}
-
-    public void isSpecial_user(boolean special_user){ this.special_user = special_user;}
 
     public LocalDate isSick(){ return sick;}
 
@@ -57,16 +46,8 @@ public class User {
         return this.username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getPassword() {
         return this.password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public int getLocalizacao() {
@@ -87,10 +68,6 @@ public class User {
                 if (!this.riskContact.contains(contact)) riskContact.add(contact);
             });
         }
-    }
-
-    public void setRiskContact(List<String> riskContact){
-        this.riskContact = riskContact;
     }
 
     public void lock(){

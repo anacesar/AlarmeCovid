@@ -1,7 +1,5 @@
 package Client;
 
-import com.jakewharton.fliptables.FlipTableConverters;
-
 import java.util.*;
 
 public class UserInterface {

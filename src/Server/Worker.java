@@ -5,6 +5,7 @@ import Client.ClientConnection.Message;
 
 import exceptions.*;
 
+import java.io.EOFException;
 import java.io.IOException;
 
 public class Worker implements Runnable {
@@ -131,10 +132,12 @@ public class Worker implements Runnable {
                     before_login();
                     if(! exit) while_logged();
                 } catch(IOException e) {
-                    e.printStackTrace();
+                    exit = true;
                 }
             }
-        }finally {
+        }catch(Exception e){
+            exit = true;
+        } finally {
             try {
                 System.out.println("Shutting down socket for client " + username);
                 client.close();
