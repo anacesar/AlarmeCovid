@@ -13,57 +13,11 @@ public class AlarmeCovid_Stub implements AlarmCovidInterface {
     private ClientConnection conn;
     private final List<String> answers;
     private Lock lock = new ReentrantLock();
-    //private IOException exception = null;
 
 
     public AlarmeCovid_Stub(ClientConnection conn){
         this.conn = conn;
         this.answers = new ArrayList<>();
-    }
-
-
-    //outra thread a espera de mapas????
-    public void start() {
-        new Thread( () -> {
-            String message = "";
-            do {
-                try {
-                    /* Message m = conn.receive()*/
-                    /*m.tag == 0 --> notification */
-                    /*m.tag == 1 --> answers */
-                    /*m.tag == 2 --> download map */
-                    message = new String(conn.receive());
-                    //System.out.println(message);
-                    lock.lock();
-                    try{
-                        if(message.charAt(0) == ':'){
-                            System.out.println("---------------------------------------------------------------------");
-                            System.out.println("Notification " + message);
-                            System.out.println("---------------------------------------------------------------------");
-                        }else synchronized (answers) {
-                            answers.add(message);
-                            answers.notify();
-                        }
-                    }finally {
-                        lock.unlock();
-                    }
-
-                } catch(IOException e) {
-                    //e.printStackTrace();
-                }
-            }while(! message.equals("stop") && !message.equals("serverDown"));
-        }).start();
-    }
-
-    public String readNext() throws InterruptedException {
-        synchronized (answers) {
-            while (answers.isEmpty()) {
-                answers.wait();
-            }
-            String next = answers.get(0);
-            answers.remove(0);
-            return next;
-        }
     }
 
     @Override
@@ -188,13 +142,12 @@ public class AlarmeCovid_Stub implements AlarmCovidInterface {
         }
     }
 
-
+    /* send to server message*/
     public void send(String message) throws IOException {
         this.conn.send(message);
     }
 
-
-
+    /* close user connection */
     public void close() throws IOException {
         this.conn.close();
     }

@@ -69,11 +69,7 @@ public class Notifier implements Runnable {
 
     }
 
-    /**
-     * Cria um caminho para a base de dados conforme o sistema operativo
-     * @param path : caminho base de dados
-     * @return : caminho absoluto da base de dados
-     */
+    /* Creates path according to OS */
     public static String makePath(String path){
         String[] os = System.getProperty("os.name").split(" ");
         String fullPath = null;

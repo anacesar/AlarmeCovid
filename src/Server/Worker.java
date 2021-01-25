@@ -106,11 +106,11 @@ public class Worker implements Runnable {
                     alarmeCovid.download_map(request[1]);
                     break;
                 case "map" :{
-                        int N = alarmeCovid.N;
-                        client.send(String.valueOf(N));
-                        for(int i=1; i< N*N; i++)
-                            client.send(i + "," + alarmeCovid.get_loc_address(i));
-                    }
+                    int N = alarmeCovid.N;
+                    client.send(String.valueOf(N));
+                    for(int i=1; i< N*N; i++)
+                        client.send(i + "," + alarmeCovid.get_loc_address(i));
+                }
                     break;
                 case "logout":
                     log = false;

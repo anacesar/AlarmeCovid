@@ -19,7 +19,6 @@ public class ClientController {
     public void start() {
         String input = null;
         List<String> userInput;
-        assert input != null;
         do {
             if(user == null){
                 input = UserInterface.showWelcomeMenu();
@@ -109,6 +108,7 @@ public class ClientController {
                             }
                         }
                         break;
+                    /* view map of locations */
                     case "map" :
                         alarmeCovidStub.view_map();
                         break;
@@ -128,7 +128,6 @@ public class ClientController {
                         break;
                 }
             }else start();
-            //UserInterface.waitEnter();
         } while (!input.equals("exit"));
 
     }

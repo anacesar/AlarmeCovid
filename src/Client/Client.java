@@ -12,11 +12,10 @@ public class Client {
         /* Create ClientConnection */
         ClientConnection clientConnection = new ClientConnection(socket);
 
-        /* Create Demultiplexer */
+        /* Create ClientStub */
         AlarmeCovid_Stub alarmeCovidStub = new AlarmeCovid_Stub(clientConnection);
-        //demultiplexer.start(); //o cliente vai estar pronto para comunicar com sev e esperar por not
 
-        /* Launch the first menu */
+        /* Launch the first menu for user interaction */
         ClientController controller = new ClientController(alarmeCovidStub);
         controller.start(); //cliente tem interacao com o user
 

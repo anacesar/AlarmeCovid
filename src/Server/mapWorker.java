@@ -10,13 +10,12 @@ public class mapWorker implements Runnable {
 
     @Override
     public void run() {
-        //bucar o N
         int N = alarmeCovid.N;
 
         /* array of threads to deal with each location in map */
         Thread[] loc = new Thread[N*N-1];
 
-        //para cada loc criar thread esperar vazio
+        //each location has its own thread to passive wait for empty signall
         try{
             for(int i=0; i<N*N-1; i++){
                 int finalI = i +1;

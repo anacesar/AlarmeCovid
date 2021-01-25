@@ -297,10 +297,7 @@ public class AlarmeCovid implements AlarmCovidInterface {
     }
 
     @Override
-    public void view_map() {
-
-    }
-
+    public void view_map() {}
 
     @Override
     public void download_map(String username) {

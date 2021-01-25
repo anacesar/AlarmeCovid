@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ClientConnection implements AutoCloseable {
-    private Socket socket;        /** Socket do cliente **/
-    private DataOutputStream out; /** Extremidade de escrita **/
-    private DataInputStream in;   /** Extremidade de leitura **/
+    private Socket socket;        /* Socket do cliente */
+    private DataOutputStream out; /* Extremidade de escrita */
+    private DataInputStream in;   /* Extremidade de leitura */
     private ReentrantLock wlock = new ReentrantLock();
     private ReentrantLock rlock = new ReentrantLock();
 
