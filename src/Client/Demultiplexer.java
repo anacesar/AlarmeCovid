@@ -116,7 +116,7 @@ public class Demultiplexer implements AlarmCovidInterface {
 
             line = new String(conn.receive());
             String[] answers = line.split(";");
-            if(answers[0].equals("e")) throw new InvalidLocationException(answers[0]);
+            if(answers[0].equals("e")) throw new InvalidLocationException(answers[1]);
 
         } catch(IOException e) {
             e.printStackTrace();
@@ -143,7 +143,7 @@ public class Demultiplexer implements AlarmCovidInterface {
 
             line = new String(conn.receive());
             String[] answers = line.split(";");
-            if(answers[0].equals("e")) throw new InvalidLocationException(answers[0]);
+            if(answers[0].equals("e")) throw new InvalidLocationException(answers[1]);
         } catch(IOException e) {
             e.printStackTrace();
         }

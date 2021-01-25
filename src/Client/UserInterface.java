@@ -95,10 +95,22 @@ public class UserInterface {
 
     public static List<String> showLoginMenu() {
         List<String> answers = new ArrayList<>();
-        System.out.println("Insert an username ");
-        answers.add(scanner.nextLine());
-        System.out.println("Insert a password ");
-        answers.add(scanner.nextLine());
+        String user = null, pass = null;
+
+        while(user == null || user.isBlank()){
+            System.out.println("Insert an username ");
+            user = scanner.nextLine();
+        }
+
+        answers.add(user);
+
+        while (pass == null || pass.isBlank()) {
+
+            System.out.println("Insert a password ");
+            pass = scanner.nextLine();
+        }
+
+        answers.add(pass);
 
         return answers;
     }

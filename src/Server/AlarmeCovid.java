@@ -174,18 +174,27 @@ public class AlarmeCovid implements AlarmCovidInterface {
             user.lock();
             users_lock.unlock();
             user.isSick(LocalDate.now()); //set sick to this moment
-            update_location(username, 0);// sending user home
+            if(user.getLocalizacao() != 0) {
+                try {
+                    update_location(username, 0);// sending user home
+                } catch (InvalidLocationException e) {
+                    e.printStackTrace();
+                }
+            }
             List<String> risk_contact = user.getRiskContact();
             user.unlock();
 
             Message m = new Message(0, username.getBytes());
-            risk_contact.forEach(risk -> {
-                try {
-                    sendNotification(risk, m);
-                } catch(IOException e) {
-                    e.printStackTrace();
-                }
-            });
+            if(!risk_contact.isEmpty()) {
+                risk_contact.forEach(risk -> {
+                    try {
+                        sendNotification(risk, m);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                });
+            }
     }
 
     @Override
@@ -219,7 +228,9 @@ public class AlarmeCovid implements AlarmCovidInterface {
 
     @Override
     /* when a user updates location */
-    public void update_location(String username, int new_location) {
+    public void update_location(String username, int new_location) throws InvalidLocationException {
+        if(new_location > N*N) throw new InvalidLocationException("Invalid Location! ");
+
         try {
             users_lock.lock();
             User u = users.get(username);
@@ -251,13 +262,16 @@ public class AlarmeCovid implements AlarmCovidInterface {
             old.unlock();
 
             // add list of current users in this place to username risk contacts
-            List<String> contacts = new_loc.getCurrentUsers();
-            u.lock();
-            u.addRiskContact(contacts);
-            u.unlock();
+            if(new_location != 0) {
+                List<String> contacts = new_loc.getCurrentUsers();
+                u.lock();
+                u.addRiskContact(contacts);
+                u.unlock();
 
-            /* entering new place */
-            new_loc.entry(username);
+                /* entering new place */
+                new_loc.entry(username);
+            }
+
             new_loc.unlock();
             System.out.println("ended");
 

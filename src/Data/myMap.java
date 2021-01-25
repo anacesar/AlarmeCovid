@@ -52,7 +52,7 @@ public class myMap {
         public List<String> getCurrentUsers(){
             location_lock.lock();
             try{
-                return currentUsers;
+                return new ArrayList<>(currentUsers);
             }finally {
                 location_lock.unlock();
             }

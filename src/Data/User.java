@@ -82,9 +82,11 @@ public class User {
     }
 
     public void addRiskContact(List<String> contacts){
-        contacts.forEach(contact -> {
-            if(!this.riskContact.contains(contact)) riskContact.add(contact);
-        });
+        if(contacts!= null) {
+            contacts.forEach(contact -> {
+                if (!this.riskContact.contains(contact)) riskContact.add(contact);
+            });
+        }
     }
 
     public void setRiskContact(List<String> riskContact){

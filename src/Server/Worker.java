@@ -84,8 +84,12 @@ public class Worker implements Runnable {
             switch(request[0]) {
                 case "update":
                     //if(!request[0].equals(username)) System.out.println("something is really wrong");
-                    alarmeCovid.update_location(username, Integer.parseInt(request[1]));
-                    client.send("Success");
+                    try {
+                        alarmeCovid.update_location(username, Integer.parseInt(request[1]));
+                        client.send("Success");
+                    } catch (InvalidLocationException e) {
+                        client.send("e;" + e.getMessage());
+                    }
                     break;
                 case "view":
                     try{
