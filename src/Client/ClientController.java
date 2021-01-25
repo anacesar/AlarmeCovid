@@ -2,18 +2,16 @@ package Client;
 
 import exceptions.*;
 
-import javax.swing.text.StyledEditorKit;
 import java.io.IOException;
-import java.text.RuleBasedCollator;
 import java.util.List;
 
 public class ClientController {
-    private Demultiplexer demultiplexer;
+    private AlarmeCovid_Stub alarmeCovidStub;
     private String user;
     private boolean special;
 
-    public ClientController(Demultiplexer demultiplexer) {
-        this.demultiplexer = demultiplexer;
+    public ClientController(AlarmeCovid_Stub alarmeCovidStub) {
+        this.alarmeCovidStub = alarmeCovidStub;
         this.user = null;
         this.special = false;
     }
@@ -28,7 +26,7 @@ public class ClientController {
                     case "login":
                         userInput = UserInterface.showLoginMenu();
                         try{
-                            special = demultiplexer.authentication(userInput.get(0), userInput.get(1));
+                            special = alarmeCovidStub.authentication(userInput.get(0), userInput.get(1));
                             user = userInput.get(0);
                         }catch(InvalidLoginException e){
                             System.out.println(e.getMessage());
@@ -39,7 +37,7 @@ public class ClientController {
                     case "register":
                         userInput = UserInterface.showRegisterMenu();
                         try{
-                            demultiplexer.registration(userInput.get(0), userInput.get(1), userInput.get(2));
+                            special = alarmeCovidStub.registration(userInput.get(0), userInput.get(1), userInput.get(2));
                             user = userInput.get(0);
                         }catch(AlreadyRegistedException | SpecialPasswordInvalidException e){
                             System.out.println(e.getMessage());
@@ -47,7 +45,7 @@ public class ClientController {
                         break;
                     case "exit" :
                         try {
-                            demultiplexer.send("exit");
+                            alarmeCovidStub.send("exit");
                         } catch(IOException e) {
                             e.printStackTrace();
                         }
@@ -60,7 +58,6 @@ public class ClientController {
                     e.printStackTrace();
                 }
             }
-            //UserInterface.waitEnter();
         } while (!input.equals("exit"));
     }
 
@@ -80,7 +77,7 @@ public class ClientController {
                     case "update":
                         node = UserInterface.showUpdateLocationMenu();
                         try{
-                            demultiplexer.update_location(user, node);
+                            alarmeCovidStub.update_location(user, node);
                         }catch(InvalidLocationException e){
                             System.out.println(e.getMessage());
                         }
@@ -88,12 +85,12 @@ public class ClientController {
                     /* view map */
                     case "view":
                         node = UserInterface.showViewLocationMenu();
-                        try{
-                            int nr = demultiplexer.nr_people_location(node);
+                        try {
+                            int nr = alarmeCovidStub.nr_people_location(node);
                             System.out.println("There are " + nr + " people in this location!");
 
-                            if(UserInterface.showEmptyLocationMenu() == 1){
-                                demultiplexer.notify_empty_location(user, node);
+                            if(UserInterface.showEmptyLocationMenu() == 1) {
+                                alarmeCovidStub.notify_empty_location(user, node);
                             }
                         }catch(InvalidLocationException e){
                             System.out.println(e.getMessage());
@@ -103,7 +100,7 @@ public class ClientController {
                     case "positive":
                         if(UserInterface.showReportPositiveMenu() == 1){
                             try{
-                                demultiplexer.notify_positive(user);
+                                alarmeCovidStub.notify_positive(user);
                                 input = "logout";
                                 System.out.println("Please stay at home for 14 days! ");
                             }catch(Exception e){
@@ -111,14 +108,17 @@ public class ClientController {
                             }
                         }
                         break;
+                    case "map" :
+                        alarmeCovidStub.view_map();
+                        break;
                     /* special users download map*/
                     case "download" :
-                        demultiplexer.download_map(user);
+                        alarmeCovidStub.download_map(user);
                         break;
                     /* logout */
                     case "logout":
                         try {
-                            demultiplexer.send("logout");
+                            alarmeCovidStub.send("logout");
                             notifications.join();
                             user = null;
                         } catch(InterruptedException e) {

@@ -55,7 +55,7 @@ public class Server {
         public static void shutdown(){
             shutdown = true;
             System.out.println("Shutting down the server...");
-            System.out.println("Closing server socket...");
+            alarmeCovid.warnClientsAboutShutdown();
             try{
                 serverSocket.close();
                 System.out.println("Server Socket closed");

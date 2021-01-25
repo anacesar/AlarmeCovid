@@ -1,5 +1,7 @@
 package Client;
 
+import com.jakewharton.fliptables.FlipTableConverters;
+
 import java.util.*;
 
 public class UserInterface {
@@ -27,25 +29,6 @@ public class UserInterface {
         }
     }
 
-    public static class mapViewer {
-        private int n; //nr of nodes in map
-        private Map<Integer, String> map = new HashMap<>();
-        public static boolean loaded = false;
-
-        public mapViewer(int N){
-
-        }
-
-        public void location_info(int node, String name){
-            map.put(node, name);
-        }
-
-    }
-
-    public static void waitEnter() {
-        System.out.println("Press enter to continue");
-        scanner.nextLine();
-    }
 
     public static void flush(){
         scanner.nextLine();
@@ -72,8 +55,6 @@ public class UserInterface {
                 break;
             default:
                 System.out.println("Please select one of the available options");
-                showWelcomeMenu();
-                //waitEnter();
                 res = showWelcomeMenu();
         }
         return res;
@@ -101,15 +82,12 @@ public class UserInterface {
             System.out.println("Insert an username ");
             user = scanner.nextLine();
         }
-
         answers.add(user);
 
         while (pass == null || pass.isBlank()) {
-
             System.out.println("Insert a password ");
             pass = scanner.nextLine();
         }
-
         answers.add(pass);
 
         return answers;
@@ -120,7 +98,8 @@ public class UserInterface {
         options.add("1 - Update Location");
         options.add("2 - Number of people in a location");
         options.add("3 - Report Positive Case");
-        if(special) options.add("4 - Download map");
+        options.add("4 - View Map");
+        if(special) options.add("5 - Download map");
         options.add("0 - Logout");
         Menu showMainMenu = new Menu(options, "Main Menu  ");
         showMainMenu.show();
@@ -136,7 +115,10 @@ public class UserInterface {
             case "3":
                 res = "positive";
                 break;
-            case "4" :
+            case "4":
+                res = "map";
+                break;
+            case "5":
                 res = "download";
                 break;
             case "0":
@@ -144,28 +126,30 @@ public class UserInterface {
                 break;
             default:
                 System.out.println("Please select one of the available options: ");
-                //waitEnter();
                 res = showMainMenu(special);
         }
         return res;
     }
 
-
     public static int showUpdateLocationMenu(){
-        System.out.println("Change Location ");
-        int op = scanner.nextInt();
-        flush();
-        return op;
+        System.out.println("Change Location: ");
+        try{
+            return Integer.parseInt(scanner.nextLine());
+        }catch(NumberFormatException e){
+            System.out.println("Select a valid location!");
+            return showUpdateLocationMenu();
+        }
 
     }
 
-
-    //todo check if location is right
     public static int showViewLocationMenu(){
         System.out.println("Choose Next Location: ");
-        int loc = scanner.nextInt();
-        flush();
-        return loc;
+        try{
+            return Integer.parseInt(scanner.nextLine());
+        }catch(NumberFormatException e){
+            System.out.println("Select a valid location!");
+            return showViewLocationMenu();
+        }
     }
 
     public static int showEmptyLocationMenu(){
@@ -194,22 +178,5 @@ public class UserInterface {
         }
         return op;
     }
-
-
-    /*
-    *
-    * Menu "Tens a mania que és special"
-    *
-    * */
-    public static List<String> showSpecialMenu(){
-        List<String> answers = new ArrayList<>();
-        System.out.println("Do you have special permissions? ");
-        System.out.println("1- Yes ");
-        System.out.println("2- No ");
-        answers.add(scanner.nextLine());
-
-        return answers;
-    }
-
 
 }

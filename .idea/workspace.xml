@@ -123,7 +123,19 @@
       </list>
     </recent_temporary>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SpellCheckerSettings" BundledDictionaries="0" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" Dictionaries="0" CorrectionsLimit="5" DefaultDictionary="application-level" UseSingleDictionary="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -145,22 +157,23 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="184" y="112" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1610997265272">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="184" y="112" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1440.900@0.0.1440.900" timestamp="1610997265272" />
-    <state x="533" y="166" key="#com.intellij.ide.util.MemberChooser" timestamp="1611080613165">
+    <state x="533" y="166" key="#com.intellij.ide.util.MemberChooser" timestamp="1611593451199">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state x="533" y="166" key="#com.intellij.ide.util.MemberChooser/0.0.1440.900@0.0.1440.900" timestamp="1611080613165" />
+    <state x="533" y="166" key="#com.intellij.ide.util.MemberChooser/0.0.1440.900@0.0.1440.900" timestamp="1611593451199" />
     <state x="569" y="346" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog" timestamp="1609867783720">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
@@ -169,33 +182,37 @@
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="486" y="342" width="467" height="225" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.0.1440.900@0.0.1440.900" timestamp="1609867972349" />
+    <state x="332" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1611589418355">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="332" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.1440.900@0.0.1440.900" timestamp="1611589418355" />
     <state x="508" y="198" key="FileChooserDialogImpl" timestamp="1611015416653">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="508" y="198" key="FileChooserDialogImpl/0.0.1440.900@0.0.1440.900" timestamp="1611015416653" />
-    <state width="1237" height="230" key="GridCell.Tab.0.bottom" timestamp="1611527690879">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state width="1398" height="305" key="GridCell.Tab.0.bottom" timestamp="1611597810485">
+      <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state width="1237" height="230" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1611527690879" />
-    <state width="1398" height="410" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1611086651762" />
+    <state width="1398" height="305" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1611597810485" />
     <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.23.1440.877@0.23.1440.877" timestamp="1610624741802" />
-    <state width="1237" height="230" key="GridCell.Tab.0.center" timestamp="1611527690874">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state width="1398" height="305" key="GridCell.Tab.0.center" timestamp="1611597810483">
+      <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state width="1237" height="230" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1611527690874" />
-    <state width="1398" height="410" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1611086651761" />
+    <state width="1398" height="305" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1611597810483" />
     <state width="1398" height="245" key="GridCell.Tab.0.center/0.23.1440.877@0.23.1440.877" timestamp="1610624741798" />
-    <state width="1237" height="230" key="GridCell.Tab.0.left" timestamp="1611527690874">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state width="1398" height="305" key="GridCell.Tab.0.left" timestamp="1611597810482">
+      <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state width="1237" height="230" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1611527690874" />
-    <state width="1398" height="410" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1611086651760" />
+    <state width="1398" height="305" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1611597810482" />
     <state width="1398" height="245" key="GridCell.Tab.0.left/0.23.1440.877@0.23.1440.877" timestamp="1610624741797" />
-    <state width="1237" height="230" key="GridCell.Tab.0.right" timestamp="1611527690874">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state width="1398" height="305" key="GridCell.Tab.0.right" timestamp="1611597810484">
+      <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state width="1237" height="230" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1611527690874" />
-    <state width="1398" height="410" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1611086651762" />
+    <state width="1398" height="305" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1611597810484" />
     <state width="1398" height="245" key="GridCell.Tab.0.right/0.23.1440.877@0.23.1440.877" timestamp="1610624741800" />
     <state width="1237" height="326" key="GridCell.Tab.1.bottom" timestamp="1611348329251">
       <screen x="0" y="0" width="1280" height="680" />
@@ -250,11 +267,6 @@
           <properties class="java.net.SocketException" package="java.net" />
           <option name="timeStamp" value="1" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/Server/Worker.java</url>
-          <line>128</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>

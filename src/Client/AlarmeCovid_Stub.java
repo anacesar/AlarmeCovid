@@ -1,6 +1,7 @@
 package Client;
 
 import Data.AlarmCovidInterface;
+import com.jakewharton.fliptables.FlipTableConverters;
 import exceptions.*;
 
 import java.io.IOException;
@@ -8,14 +9,14 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Demultiplexer implements AlarmCovidInterface {
+public class AlarmeCovid_Stub implements AlarmCovidInterface {
     private ClientConnection conn;
     private final List<String> answers;
     private Lock lock = new ReentrantLock();
     //private IOException exception = null;
 
 
-    public Demultiplexer(ClientConnection conn){
+    public AlarmeCovid_Stub(ClientConnection conn){
         this.conn = conn;
         this.answers = new ArrayList<>();
     }
@@ -66,7 +67,7 @@ public class Demultiplexer implements AlarmCovidInterface {
     }
 
     @Override
-    public void registration(String username, String password, String special_password) throws AlreadyRegistedException, SpecialPasswordInvalidException {
+    public boolean registration(String username, String password, String special_password) throws AlreadyRegistedException, SpecialPasswordInvalidException {
         String line = "register;" + username + ";" + password + ";" + special_password;
         try {
             this.conn.send(line.getBytes());
@@ -79,6 +80,7 @@ public class Demultiplexer implements AlarmCovidInterface {
         } catch(IOException e) {
             e.printStackTrace();
         }
+        return Boolean.parseBoolean(line);
     }
 
     @Override
@@ -148,6 +150,33 @@ public class Demultiplexer implements AlarmCovidInterface {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void view_map() {
+        String line = "map";
+        try {
+            this.conn.send(line.getBytes());
+
+            int N = Integer.parseInt(new String(this.conn.receive()));
+
+            String[] headers = {"Location", "Address"};
+            Object[][] data = new Object[N * N][2];
+
+            data[0][0] = 0;
+            data[0][1] = "Home";
+
+            for(int i = 1; i<N*N; i++){
+                String[] info =  new String(this.conn.receive()).split(",");
+                data[i][0] = Integer.parseInt(info[0]);
+                data[i][1] = info[1];
+            }
+
+            System.out.println(FlipTableConverters.fromObjects(headers, data));
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void download_map(String username) {

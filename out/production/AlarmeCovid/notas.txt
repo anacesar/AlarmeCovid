@@ -1,4 +1,4 @@
-cliente conecta se --> cria demultiplexer
+cliente conecta se --> cria alarmeCovidStub
 
 Demultiplexer:
 thread responsavel verificar as notificacoes
@@ -10,7 +10,7 @@ thread responsavel pela interacao com util {
 server:
 manda pelo clientconnection a info
 
-conexao demultiplexer --> menu
+conexao alarmeCovidStub --> menu
 
 --servidor precisa notificar cliente--
 esta logado ?? envias notifi pelo clientConn

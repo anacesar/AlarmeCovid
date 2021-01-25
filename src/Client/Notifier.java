@@ -32,33 +32,37 @@ public class Notifier implements Runnable {
             this.conn.send("not;" + this.username);
             while(!exit) {
                 message = conn.receiveMessage();
-                System.out.println(message.tag);
+                System.out.println("\n--------------------------------------------------------------------------------------------");
+                System.out.print("| Notification --> ");
+
+
                 switch(message.tag) {
-                    //todo pretty notifications
                     case 0: //positive contact
-                        System.out.println("Risk Contact Detected : " + new String(message.data) + " ! Please pay attention for the next days!");
+                        System.out.print("Risk Contact Detected : " + new String(message.data) + " ! Please pay attention for the next days!");
                         break;
                     case 1: //empty place
-                        System.out.println("Location " + new String(message.data) + " is now empty! ");
+                        System.out.print("Location " + new String(message.data) + " is now empty! ");
                         break;
                     case 2: //download
                         downloadMap(message.data);
-                        System.out.println("Map downloaded with success!");
+                        System.out.print("Map downloaded with success!");
                         break;
                     default:
+                        System.out.print("Notification connection closed ");
                         exit = true;
                         break;
                 }
-
+                System.out.println(" |");
+                System.out.println("--------------------------------------------------------------------------------------------");
             }
         } catch(IOException e) {
             e.printStackTrace();
         } finally {
             try {
-                System.out.println("shutting down notifier connection ");
+                //System.out.println("shutting down notifier connection ");
                 conn.send("exit");
                 conn.close();
-                System.out.println("notifier connection down");
+                //System.out.println("notifier connection down");
             } catch(IOException e) {
                 e.printStackTrace();
             }
@@ -86,7 +90,7 @@ public class Notifier implements Runnable {
 
     public void downloadMap(byte[] map_info) {
         File file = new File(makePath(Paths.get("").toAbsolutePath().toString()) + username + ".txt");
-        try (FileWriter fileWriter = new FileWriter(file, false)){
+        try(FileWriter fileWriter = new FileWriter(file, false)) {
             String[] headers = {"Location", "Address", "Nr users", "Nr sick users"};
 
             String[] info = new String(map_info).split(";");
@@ -108,6 +112,8 @@ public class Notifier implements Runnable {
 
             String table = FlipTableConverters.fromObjects(headers, data);
             fileWriter.write(table);
-        } catch(IOException ignored) { }
+            fileWriter.flush();
+        } catch(IOException ignored) {
+        }
     }
 }

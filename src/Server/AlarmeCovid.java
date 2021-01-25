@@ -4,9 +4,7 @@ import Client.ClientConnection;
 import Client.ClientConnection.Message;
 import exceptions.*;
 
-import javax.sound.sampled.AudioFormat;
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -26,7 +24,7 @@ public class AlarmeCovid implements AlarmCovidInterface {
     /* logged users and connection associated */
     private HashMap<String, ClientConnection> notification; //cc associada ao socket de notificacoes
     /* notifications for users waiting to log in */
-    private Map<String, List<Message>> users_not_logged; //todo passar para csv
+    private Map<String, List<Message>> users_not_logged;
     /* list of users to be notified empty locations */
     private Map<Integer, List<String>> users_not_empty;
 
@@ -37,6 +35,7 @@ public class AlarmeCovid implements AlarmCovidInterface {
 
     private final String USER_PATH;
     private final String MAP_PATH;
+    private final String EMPTY_PATH;
     private final String special_password = "12345";
     public int N = 0;
 
@@ -51,6 +50,7 @@ public class AlarmeCovid implements AlarmCovidInterface {
         /* load files information */
         USER_PATH  = s + "/src/DataBase/users.csv";
         MAP_PATH = s + "/src/DataBase/map.csv";
+        EMPTY_PATH = s + "/src/DataBase/empty.csv";
         fillDAO();
     }
 
@@ -59,6 +59,7 @@ public class AlarmeCovid implements AlarmCovidInterface {
         try {
             BufferedReader user_br = new BufferedReader(new FileReader(USER_PATH));
             BufferedReader map_br = new BufferedReader(new FileReader(MAP_PATH));
+            BufferedReader empty_br = new BufferedReader(new FileReader(EMPTY_PATH));
             String line;
 
             /* UserDAO*/
@@ -96,41 +97,61 @@ public class AlarmeCovid implements AlarmCovidInterface {
                 this.map.putLocation(Integer.parseInt(location_line[0]), new Location(location_line[1], cur_users, hist_users));
             }
 
+            /* EmptyMapDAO */
+            String[] empty_line;
+
+            /* construtor locations */
+            while((line = empty_br.readLine()) != null) {
+                empty_line = line.split(";");
+
+                users_not_empty.put(Integer.parseInt(empty_line[0]), new ArrayList<>(Arrays.asList(empty_line[1].split(","))));
+            }
+
+
         } catch(IOException e) {
             System.out.println("An error ocurred during load of csv files.. \n" + e.getMessage());
         }
     }
 
+    /* to deal with empty place notifications */
     public void empty_map(int node){
         map_lock.lock();
         Location location = map.getLocation(node);
         location.lock();
         map_lock.unlock();
 
-        while(true){
-            try{
+        while(true) {
+            try {
                 System.out.println("Waiting for empty loc " + node);
-                while(! location.getCurrentUsers().isEmpty() || !users_not_empty.containsKey(node) || users_not_empty.get(node).isEmpty() ) location.await();
-                List<String> users = users_not_empty.get(node);
-                System.out.println("EMPTY LOC " + node);
+                while(!location.getCurrentUsers().isEmpty() || users_not_empty.get(node).isEmpty()) location.await();
                 //isEmpty is signal
+                System.out.println("EMPTY LOC " + node );
+
+                empty_lock.lock();
                 Message message = new Message(1, location.getAdress().getBytes());
-                users.forEach(user -> {
+
+                List<String> users = users_not_empty.get(node);
+                while(! users.isEmpty()){
                     try {
-                        System.out.println("trying to send notification to user ");
+                        String user = users.get(0);
                         sendNotification(user, message);
-                        users.remove(user);
+                        users.remove(0);
                     } catch(IOException e) {
                         e.printStackTrace();
                     }
-                });
-            }catch(InterruptedException e){}
+                }
+                empty_lock.unlock();
+
+            } catch(InterruptedException | ConcurrentModificationException e) { e.printStackTrace();
+            }
         }
-
-
     }
+
+
+    /* AlarmeCovidInterface implementation */
+
     @Override
-    public void registration(String username, String password, String special_pass) throws AlreadyRegistedException, SpecialPasswordInvalidException {
+    public boolean registration(String username, String password, String special_pass) throws AlreadyRegistedException, SpecialPasswordInvalidException {
         boolean special;
         try{
             users_lock.lock();
@@ -143,13 +164,13 @@ public class AlarmeCovid implements AlarmCovidInterface {
                 }
                 users.put(username, new User(username, password, special));
             }
+            return special;
         }finally {
             users_lock.unlock();
         }
     }
 
     @Override
-    // falta ver se tem notificacoes, ver se esta doente
     public boolean authentication(String username, String password) throws InvalidLoginException, QuarantineException{
         try{
             users_lock.lock();
@@ -218,7 +239,7 @@ public class AlarmeCovid implements AlarmCovidInterface {
                 List<String> users = new ArrayList<>();
                 users.add(username);
                 users_not_empty.put(node, users);
-                System.out.println(node + "added to user_noti_empty");
+                System.out.println(node + " added to user_noti_empty");
                 users.forEach(System.out::println);
             } else users_not_empty.get(node).add(username);
         }finally {
@@ -229,7 +250,7 @@ public class AlarmeCovid implements AlarmCovidInterface {
     @Override
     /* when a user updates location */
     public void update_location(String username, int new_location) throws InvalidLocationException {
-        if(new_location > N*N) throw new InvalidLocationException("Invalid Location! ");
+        if(new_location >= N*N) throw new InvalidLocationException("Invalid Location! ");
 
         try {
             users_lock.lock();
@@ -257,8 +278,7 @@ public class AlarmeCovid implements AlarmCovidInterface {
             map_lock.unlock();
 
             /* leaving old place */
-            old.exit(username); //check if its empty after leaving place
-            System.out.println("exited old location");
+            if(old_location > 0) old.exit(username); //check if its empty after leaving place
             old.unlock();
 
             // add list of current users in this place to username risk contacts
@@ -271,25 +291,16 @@ public class AlarmeCovid implements AlarmCovidInterface {
                 /* entering new place */
                 new_loc.entry(username);
             }
-
             new_loc.unlock();
-            System.out.println("ended");
-
         } catch(Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public AtomicInteger nr_people_sick(Location l){
-        AtomicInteger nr = new AtomicInteger();
-         l.getHistory().forEach(user -> {
-             users_lock.lock();
-             if (this.users.get(user).isSick() != null) nr.getAndIncrement();
-             users_lock.unlock();
-         });
+    @Override
+    public void view_map() {
 
-         return nr;
     }
 
 
@@ -315,7 +326,6 @@ public class AlarmeCovid implements AlarmCovidInterface {
         /* creating map as message to send to user */
         System.out.println(sb.toString());
         Message message = new Message(2, sb.toString().getBytes());
-        System.out.println("after to bytes : " + message.toString());
 
         try {
             sendNotification(username, message);
@@ -324,13 +334,28 @@ public class AlarmeCovid implements AlarmCovidInterface {
         }
     }
 
+    /* auxiliar */
+    public AtomicInteger nr_people_sick(Location l){
+        AtomicInteger nr = new AtomicInteger();
+        l.getHistory().forEach(user -> {
+            users_lock.lock();
+            if (this.users.get(user).isSick() != null) nr.getAndIncrement();
+            users_lock.unlock();
+        });
+
+        return nr;
+    }
+
+    public String get_loc_address(int node){ return map.getLocation(node).getAdress();}
+
+
+    /* Notifications */
 
     /* Save users connection in notification map*/
     public void addToNotification(String username , ClientConnection cc) {
         notification_lock.lock();
         this.notification.put(username, cc);
-        System.out.println(username + "added to notification ");
-        //if(users_logged.containsKey(username)) users_logged.get(username).forEach(notification -> cc.send(notification));
+        System.out.println(username + " added to notification ");
         notification_lock.unlock();
     }
 
@@ -338,7 +363,6 @@ public class AlarmeCovid implements AlarmCovidInterface {
     public void removeNotification(String username) {
         notification_lock.lock();
         this.notification.remove(username);
-        //if(users_logged.containsKey(username)) users_logged.get(username).forEach(notification -> cc.send(notification));
         notification_lock.unlock();
     }
 
@@ -349,14 +373,14 @@ public class AlarmeCovid implements AlarmCovidInterface {
             notification_lock.lock();
 
             if(notification.containsKey(username)) { //user is logged
-                System.out.println("user is logged to receive not ");
+                //System.out.println("user is logged to receive not ");
                 try {/* notificator*/
                     this.notification.get(username).send(message);
                 } catch(IOException e) {
                     e.printStackTrace();
                 }
             } else { //save notification for later log in
-                System.out.println("user is not logged ");
+                //System.out.println("user is not logged ");
 
                 if(!users_not_logged.containsKey(username)) {
                     users_not_logged.put(username, new ArrayList<>());
@@ -386,10 +410,8 @@ public class AlarmeCovid implements AlarmCovidInterface {
     /* Warns clients about shutdown */
     public void warnClientsAboutShutdown() {
         notification_lock.lock();
-        this.notification.values().forEach(cc -> { try { cc.send("serverDown");} catch(IOException e) { e.printStackTrace(); }
-        });
+        this.notification.values().forEach(cc -> { try { cc.send("serverDown");} catch(IOException e) { e.printStackTrace(); }});
         this.notification_lock.unlock();
     }
-
 
 }

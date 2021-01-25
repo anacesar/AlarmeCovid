@@ -45,8 +45,7 @@ public class Worker implements Runnable {
                         break;
                     case "register":
                         try {
-                            alarmeCovid.registration(request[1], request[2], request[3]);
-                            client.send("Success");
+                            client.send(String.valueOf(alarmeCovid.registration(request[1], request[2], request[3])));
                             this.username = request[1];
                             log = true;
                         } catch(AlreadyRegistedException | SpecialPasswordInvalidException e) {
@@ -83,7 +82,6 @@ public class Worker implements Runnable {
             }
             switch(request[0]) {
                 case "update":
-                    //if(!request[0].equals(username)) System.out.println("something is really wrong");
                     try {
                         alarmeCovid.update_location(username, Integer.parseInt(request[1]));
                         client.send("Success");
@@ -106,7 +104,12 @@ public class Worker implements Runnable {
                 case "download" :
                     alarmeCovid.download_map(request[1]);
                     break;
-                case "map" : //check for N in matrix
+                case "map" :{
+                        int N = alarmeCovid.N;
+                        client.send(String.valueOf(N));
+                        for(int i=1; i< N*N; i++)
+                            client.send(i + "," + alarmeCovid.get_loc_address(i));
+                    }
                     break;
                 case "logout":
                     log = false;
@@ -142,60 +145,5 @@ public class Worker implements Runnable {
         }
     }
 
-    /*
-    public void run() {
-            while( log ){
-                try {
-                    request = in.readLine().split(";");
-                    uploadState = new UploadState();
-                    arrival = System.currentTimeMillis();
-                }catch (NullPointerException np){
-                    log = false;
-                    return;
-                }
-                switch (request[0]){
-                    case "C" : task = new SearchTask(soundcloud,out,request[1],request);
-                        uploadState.changeUploadFinished();
-                        break;
-                    case "D" : task = new DownloadTask(soundcloud,Integer.parseInt(request[1]), client, out);
-                        uploadState.changeUploadFinished();
-                        break;
-                    case "U" : task = new UploadTask(soundcloud, out, client, request, uploadState);
-                        break;
-                    case "L" : {
-                        log = false;
-                        this.soundcloud.sendNotification(this.username, "stop");
-                        this.soundcloud.removeNotification(this.username);
-                        uploadState.changeUploadFinished();
-                    }
-                }
-                if( log ) {
-                    time_task = new TimeTask(arrival, task);
-                    tasks.put(time_task);
-                }
-
-                while(!uploadState.isUploadFinished()){
-                    Thread.sleep(100);
-                }
-            }
-        } catch (NullPointerException | SocketException n){
-            log = false;
-        } catch (IOException | InterruptedException io){
-            io.printStackTrace();
-        } finally {
-            try {
-                if(!log){
-                    System.out.println("Shutting down client...");
-                    client.shutdownOutput();
-                    client.shutdownInput();
-                    client.close();
-                    System.out.println("Client closed.");
-                }
-            }catch (IOException io){
-                io.printStackTrace();
-            }
-        }
-    }
-    */
 }
 
