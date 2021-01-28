@@ -76,7 +76,7 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Client">
+  <component name="RunManager" selected="Application.Server">
     <configuration name="Client" type="Application" factoryName="Application" singleton="false" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Client.Client" />
       <module name="AlarmeCovid" />
@@ -86,13 +86,6 @@
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Server.Main" />
-      <module name="AlarmeCovid" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -112,14 +105,12 @@
     </configuration>
     <list>
       <item itemvalue="Application.Client" />
-      <item itemvalue="Application.Main" />
       <item itemvalue="Application.Server" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Application.Client" />
         <item itemvalue="Application.Server" />
-        <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>
   </component>
@@ -166,10 +157,10 @@
     </option>
   </component>
   <component name="WindowStateProjectService">
-    <state x="184" y="112" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1610997265272">
+    <state x="184" y="112" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1611677932193">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state x="184" y="112" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1440.900@0.0.1440.900" timestamp="1610997265272" />
+    <state x="184" y="112" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1440.900@0.0.1440.900" timestamp="1611677932193" />
     <state x="533" y="166" key="#com.intellij.ide.util.MemberChooser" timestamp="1611593451199">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
@@ -190,29 +181,29 @@
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="508" y="198" key="FileChooserDialogImpl/0.0.1440.900@0.0.1440.900" timestamp="1611015416653" />
-    <state width="1398" height="305" key="GridCell.Tab.0.bottom" timestamp="1611601250362">
+    <state width="1398" height="305" key="GridCell.Tab.0.bottom" timestamp="1611831386670">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state width="1237" height="230" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1611527690879" />
-    <state width="1398" height="305" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1611601250362" />
+    <state width="1398" height="305" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1611831386670" />
     <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.23.1440.877@0.23.1440.877" timestamp="1610624741802" />
-    <state width="1398" height="305" key="GridCell.Tab.0.center" timestamp="1611601250360">
+    <state width="1398" height="305" key="GridCell.Tab.0.center" timestamp="1611831386669">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state width="1237" height="230" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1611527690874" />
-    <state width="1398" height="305" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1611601250360" />
+    <state width="1398" height="305" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1611831386669" />
     <state width="1398" height="245" key="GridCell.Tab.0.center/0.23.1440.877@0.23.1440.877" timestamp="1610624741798" />
-    <state width="1398" height="305" key="GridCell.Tab.0.left" timestamp="1611601250359">
+    <state width="1398" height="305" key="GridCell.Tab.0.left" timestamp="1611831386668">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state width="1237" height="230" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1611527690874" />
-    <state width="1398" height="305" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1611601250359" />
+    <state width="1398" height="305" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1611831386668" />
     <state width="1398" height="245" key="GridCell.Tab.0.left/0.23.1440.877@0.23.1440.877" timestamp="1610624741797" />
-    <state width="1398" height="305" key="GridCell.Tab.0.right" timestamp="1611601250361">
+    <state width="1398" height="305" key="GridCell.Tab.0.right" timestamp="1611831386669">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state width="1237" height="230" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1611527690874" />
-    <state width="1398" height="305" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1611601250361" />
+    <state width="1398" height="305" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1611831386669" />
     <state width="1398" height="245" key="GridCell.Tab.0.right/0.23.1440.877@0.23.1440.877" timestamp="1610624741800" />
     <state width="1237" height="326" key="GridCell.Tab.1.bottom" timestamp="1611348329251">
       <screen x="0" y="0" width="1280" height="680" />
@@ -238,6 +229,10 @@
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="208" y="31" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1611074400436" />
+    <state x="397" y="282" key="com.intellij.ide.util.TipDialog" timestamp="1611786152564">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="397" y="282" key="com.intellij.ide.util.TipDialog/0.0.1440.900@0.0.1440.900" timestamp="1611786152564" />
     <state x="458" y="255" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1611345941779">
       <screen x="0" y="0" width="1280" height="680" />
     </state>

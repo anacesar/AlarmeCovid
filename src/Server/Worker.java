@@ -5,7 +5,6 @@ import Client.ClientConnection.Message;
 
 import exceptions.*;
 
-import java.io.EOFException;
 import java.io.IOException;
 
 public class Worker implements Runnable {

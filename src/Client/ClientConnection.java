@@ -34,7 +34,6 @@ public class ClientConnection implements AutoCloseable {
             out.writeInt(tag);
             out.writeInt(data.length);
             out.write(data);
-
         }
 
         public static Message deserialize(DataInputStream in) throws IOException {
